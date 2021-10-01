@@ -1,6 +1,6 @@
 specVersion: 0.0.2
 schema:
-  file: ./schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: EverestToken
@@ -24,10 +24,10 @@ dataSources:
         - BurnEvent
       abis:
         - name: EverestToken
-          file: ./abis/EverestToken.json
+          file: EverestToken\abis\EverestToken.json
       eventHandlers:
         - event: Approval(indexed address,indexed address,uint256)
           handler: handleApproval
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
-      file: ./src/mappings/mapping.ts
+      file: EverestToken\EverestToken.wasm
