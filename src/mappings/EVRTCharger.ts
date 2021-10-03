@@ -1,16 +1,27 @@
 import { BigDecimal, Bytes, ethereum } from "@graphprotocol/graph-ts"
 import {
-  EverestToken,
+  EVRTCharger,
   Approval,
-  Transfer
-} from "../../generated/EverestToken/EverestToken"
+  Transfer,
+  DailyRewardsReceived,
+  DelegateChanged,
+  DelegateVotesChanged,
+  Enter,
+  Leave
+} from "../../generated/EVRTCharger/EVRTCharger"
 
 import { 
   Token,
   MintEvent,
   TransferEvent,
   ApprovalEvent,
-  BurnEvent
+  BurnEvent,
+  DailyRewardReceived as DailyReward,
+  Delegate,
+  DelegateVote,
+  DelegateChange,
+  Enter as enterEntity,
+  Leave as leaveEntity
  } from "../../generated/schema"
 
  import {
@@ -19,6 +30,7 @@ import {
   getOrCreateToken,
   increaseAccountBalance,
   saveAccountBalanceSnapshot,
+  getOrCreateDelegate,
   GENESIS_ADDRESS
 } from "./core"
 
@@ -103,6 +115,105 @@ export function handleTransfer(event: Transfer): void {
 
 }
 
+export function handleDelegateChanged(event: DelegateChanged): void {
+  let id = event.params.fromDelegate.toHexString().concat('-').concat(event.params.toDelegate.toHexString())
+  let delegate = DelegateChange.load(id)
+  if(delegate == null){
+    delegate = new DelegateChange(id)
+    let delegator = getOrCreateAccount(event.params.delegator)
+    let getDelegate = getOrCreateDelegate(event, event.params.delegator, event.params.toDelegate)
+    getDelegate.save()
+    delegator.delegate = getDelegate.id
+    delegator.save()
+    delegate.delegator = delegator.id
+    let currentDelegate = getOrCreateAccount(event.params.fromDelegate)
+    currentDelegate.save()
+    delegate.currentDelegate = currentDelegate.id
+    let newDelegate = getOrCreateAccount(event.params.toDelegate)
+    newDelegate.save()
+    delegate.newDelegate = newDelegate.id
+    delegate.timestamp = event.block.timestamp
+    delegate.save()
+  }
+}
+
+export function handleDelegateVotesChanged(event: DelegateVotesChanged): void {
+  let delegateId = event.params.delegate.toHexString()
+  let delegate = Delegate.load(delegateId)
+  let delegateVote = DelegateVote.load(delegateId)
+  if(delegate != null){ 
+    if(delegateVote != null){
+      delegate.vote = delegateVote.id
+      delegate.save()
+    }
+    
+    delegateVote = new DelegateVote(delegateId)
+    delegateVote.delegate = delegate.id
+    delegateVote.previousVoteBalance = event.params.previousBalance
+    delegateVote.newVoteBalance = event.params.newBalance
+    delegateVote.timestamp = event.block.timestamp
+    delegateVote.transaction = event.transaction.hash
+    delegateVote.save()
+  }
+}
+
+export function handleEnter(event: Enter): void {
+  let token = getOrCreateToken(event, event.address)
+  let id = event.transaction.hash.toHexString()
+  let vault = event.params.penguin
+  let amount = toDecimal(event.params.amount, token.decimals)
+
+  let enter = enterEntity.load(id)
+  if(enter == null) {
+    enter = new enterEntity(id)
+    enter.account = getOrCreateAccount(event.transaction.from).id
+    enter.vault = vault
+    enter.amount = amount
+    enter.timestamp = event.block.timestamp
+    enter.transaction = event.transaction.hash
+
+    enter.save()
+  }
+}
+
+export function handleLeave(event: Leave): void {
+  let token = getOrCreateToken(event, event.address)
+  let id = event.transaction.hash.toHexString()
+  let vault = event.params.penguin
+  let amount = toDecimal(event.params.amount, token.decimals)
+  let shares = toDecimal(event.params.shares, token.decimals)
+
+  let leave = leaveEntity.load(id)
+  if(leave == null) {
+    leave = new leaveEntity(id)
+    leave.account = getOrCreateAccount(event.transaction.from).id
+    leave.vault = vault
+    leave.amount = amount
+    leave.shares = shares
+    leave.timestamp = event.block.timestamp
+    leave.transaction = event.transaction.hash
+
+    leave.save()
+  }
+}
+
+export function handleDailyRewardsReceived(event: DailyRewardsReceived): void {
+  let token = getOrCreateToken(event, event.address)
+  let id = event.transaction.hash.toHexString()
+  let amount = toDecimal(event.params.amountEvrt, token.decimals)
+  
+  let reward = leaveEntity.load(id)
+  if(reward == null) {
+    reward = new leaveEntity(id)
+    reward.account = getOrCreateAccount(event.transaction.from).id
+    reward.amount = amount
+    reward.timestamp = event.block.timestamp
+    reward.transaction = event.transaction.hash
+
+    reward.save()
+  }
+}
+
 function handleMintEvent(token: Token | null, amount: BigDecimal, destination: Bytes, event: ethereum.Event): MintEvent {
   let mintEvent = new MintEvent(event.transaction.hash.toHex().concat('-').concat(event.logIndex.toString()))
   mintEvent.token = event.address.toHex()
@@ -164,9 +275,9 @@ function handleTransferEvent(
   let transferEvent = new TransferEvent(event.transaction.hash.toHex().concat('-').concat(event.logIndex.toString()))
   transferEvent.token = event.address.toHex()
   transferEvent.amount = amount
-  transferEvent.sender = source
+  transferEvent.sender = getOrCreateAccount(source).id
   transferEvent.source = source
-  transferEvent.destination = destination
+  transferEvent.destination = getOrCreateAccount(destination).id
 
   transferEvent.block = event.block.number
   transferEvent.timestamp = event.block.timestamp

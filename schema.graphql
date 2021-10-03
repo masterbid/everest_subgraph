@@ -2,6 +2,10 @@
 type Account @entity {
   id: ID! #<accountAddress>
   address: Bytes!
+  delegate: Delegate!
+  inTransfers: [TransferEvent!]! @derivedFrom(field: "destination")
+  outTransfers: [TransferEvent!]! @derivedFrom(field: "sender")
+  approvals: [ApprovalEvent!]! @derivedFrom(field: "owner")
   balances: [AccountBalance!]! @derivedFrom(field: "account")
 }
 
@@ -58,9 +62,9 @@ type TransferEvent implements TokenEvent @entity {
   id: ID!
   token: Token! #<Token address>
   amount: BigDecimal! #<Quantity of tokens transferred>
-  sender: Bytes! #<Transaction sender address>
+  sender: Account! #<Transaction sender address>
   source: Bytes! #<Address of source account>
-  destination: Bytes! #<Address of destination account>
+  destination: Account! #<Address of destination account>
   block: BigInt! #<Block number>
   timestamp: BigInt! #<Event timestamp>
   transaction: Bytes! #<Transaction hash>
@@ -98,6 +102,60 @@ type BurnEvent implements TokenEvent @entity {
   block: BigInt! #<Block number>
   timestamp: BigInt! #<Event timestamp>
   transaction: Bytes! #<Transaction hash>
+}
+
+type Delegate @entity{
+  id: ID!
+  address: Bytes!
+  delegator: Account
+  vote: DelegateVote
+  timestamp: BigInt!
+  transaction: Bytes! #<Transaction hash>
+}
+
+type DelegateVote @entity {
+  id: ID! #<delegateAddress>-<previousVoteBalance>-<newVotebalance>
+  delegate: Delegate!
+  newVoteBalance: BigInt!
+  previousVoteBalance: BigInt!
+  timestamp: BigInt!
+  transaction: Bytes!
+}
+
+type DelegateChange @entity {
+  id: ID! #<currentDelegate> - <newDelegate>
+  delegator: Account!
+  currentDelegate: Account!
+  newDelegate: Account!
+  timestamp: BigInt!
+  transaction: Bytes!
+}
+
+type DailyRewardReceived @entity {
+  id: ID! #<transaction hash>
+  account: Account! 
+  amount: BigDecimal!
+  timestamp: BigInt!
+  transaction: Bytes!
+}
+
+type Enter @entity {
+  id: ID! #<transaction hash>
+  account: Account!
+  vault: Bytes!
+  amount: BigDecimal!
+  timestamp: BigInt!
+  transaction: Bytes!
+}
+
+type Leave @entity {
+  id: ID! #<transaction hash>
+  account: Account!
+  vault: Bytes!
+  amount: BigDecimal!
+  shares: BigDecimal!
+  timestamp: BigInt!
+  transaction: Bytes!
 }
 
 

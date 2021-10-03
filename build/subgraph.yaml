@@ -31,3 +31,48 @@ dataSources:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
       file: EverestToken\EverestToken.wasm
+  - kind: ethereum/contract
+    name: EVRTCharger
+    network: avalanche
+    source:
+      address: "0x451D00AF6E751537a9A2cFF40CdFB1119cd1fA7d"
+      abi: EVRTCharger
+      startBlock: 4745885
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - ApprovalEvent
+        - Account
+        - AccountBalance
+        - AccountBalanceSnapshot
+        - Token
+        - TransferEvent
+        - MintEvent
+        - BurnEvent
+        - Delegate
+        - DelegateVote
+        - DelegateChange
+        - DailyRewardsReceived
+        - Enter
+        - Leave
+      abis:
+        - name: EVRTCharger
+          file: EVRTCharger\abis\EVRTCharger.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleApproval
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+        - event: DailyRewardsReceived(indexed uint256,uint256)
+          handler: handleDailyRewardsReceived
+        - event: DelegateChanged(indexed address,indexed address,indexed address)
+          handler: handleDelegateChanged
+        - event: DelegateVotesChanged(indexed address,uint256,uint256)
+          handler: handleDelegateVotesChanged
+        - event: Enter(indexed address,uint256)
+          handler: handleEnter
+        - event: Leave(indexed address,uint256,uint256)
+          handler: handleLeave
+      file: EVRTCharger\EVRTCharger.wasm

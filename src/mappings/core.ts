@@ -1,7 +1,7 @@
 import { BigDecimal, Bytes, Address, ethereum } from '@graphprotocol/graph-ts'
 import { EverestToken } from '../../generated/EverestToken/EverestToken'
 
-import { Account, AccountBalance, AccountBalanceSnapshot, Token } from '../../generated/schema'
+import { Account, AccountBalance, AccountBalanceSnapshot, Token, Delegate } from '../../generated/schema'
 
 import { toDecimal, ZERO } from '../helpers/numbers'
 
@@ -101,6 +101,24 @@ export function saveAccountBalanceSnapshot(balance: AccountBalance, eventId: str
   snapshot.event = eventId
 
   snapshot.save()
+}
+
+export function getOrCreateDelegate(event: ethereum.Event, delegator: Bytes, delegate: Address ): Delegate {
+    let id = delegate.toHexString()
+    let delegateInstance = Delegate.load(id)
+    if(delegateInstance != null){
+        return delegateInstance as Delegate
+    }
+    delegateInstance = new Delegate(id)
+    delegateInstance.address = delegate
+    let newDelegator = getOrCreateAccount(delegator)
+    newDelegator.save()
+    delegateInstance.delegator = newDelegator.id
+    delegateInstance.vote = null
+    delegateInstance.timestamp = event.block.timestamp
+    delegateInstance.transaction = event.transaction.hash
+
+    return delegateInstance as Delegate
 }
 
 

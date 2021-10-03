@@ -51,6 +51,42 @@ export class Account extends Entity {
     this.set("address", Value.fromBytes(value));
   }
 
+  get delegate(): string {
+    let value = this.get("delegate");
+    return value.toString();
+  }
+
+  set delegate(value: string) {
+    this.set("delegate", Value.fromString(value));
+  }
+
+  get inTransfers(): Array<string> {
+    let value = this.get("inTransfers");
+    return value.toStringArray();
+  }
+
+  set inTransfers(value: Array<string>) {
+    this.set("inTransfers", Value.fromStringArray(value));
+  }
+
+  get outTransfers(): Array<string> {
+    let value = this.get("outTransfers");
+    return value.toStringArray();
+  }
+
+  set outTransfers(value: Array<string>) {
+    this.set("outTransfers", Value.fromStringArray(value));
+  }
+
+  get approvals(): Array<string> {
+    let value = this.get("approvals");
+    return value.toStringArray();
+  }
+
+  set approvals(value: Array<string>) {
+    this.set("approvals", Value.fromStringArray(value));
+  }
+
   get balances(): Array<string> {
     let value = this.get("balances");
     return value.toStringArray();
@@ -507,13 +543,13 @@ export class TransferEvent extends Entity {
     this.set("amount", Value.fromBigDecimal(value));
   }
 
-  get sender(): Bytes {
+  get sender(): string {
     let value = this.get("sender");
-    return value.toBytes();
+    return value.toString();
   }
 
-  set sender(value: Bytes) {
-    this.set("sender", Value.fromBytes(value));
+  set sender(value: string) {
+    this.set("sender", Value.fromString(value));
   }
 
   get source(): Bytes {
@@ -525,13 +561,13 @@ export class TransferEvent extends Entity {
     this.set("source", Value.fromBytes(value));
   }
 
-  get destination(): Bytes {
+  get destination(): string {
     let value = this.get("destination");
-    return value.toBytes();
+    return value.toString();
   }
 
-  set destination(value: Bytes) {
-    this.set("destination", Value.fromBytes(value));
+  set destination(value: string) {
+    this.set("destination", Value.fromString(value));
   }
 
   get block(): BigInt {
@@ -823,6 +859,478 @@ export class BurnEvent extends Entity {
 
   set block(value: BigInt) {
     this.set("block", Value.fromBigInt(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+
+  get transaction(): Bytes {
+    let value = this.get("transaction");
+    return value.toBytes();
+  }
+
+  set transaction(value: Bytes) {
+    this.set("transaction", Value.fromBytes(value));
+  }
+}
+
+export class Delegate extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Delegate entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Delegate entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Delegate", id.toString(), this);
+  }
+
+  static load(id: string): Delegate | null {
+    return store.get("Delegate", id) as Delegate | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get address(): Bytes {
+    let value = this.get("address");
+    return value.toBytes();
+  }
+
+  set address(value: Bytes) {
+    this.set("address", Value.fromBytes(value));
+  }
+
+  get delegator(): string | null {
+    let value = this.get("delegator");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set delegator(value: string | null) {
+    if (value === null) {
+      this.unset("delegator");
+    } else {
+      this.set("delegator", Value.fromString(value as string));
+    }
+  }
+
+  get vote(): string | null {
+    let value = this.get("vote");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set vote(value: string | null) {
+    if (value === null) {
+      this.unset("vote");
+    } else {
+      this.set("vote", Value.fromString(value as string));
+    }
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+
+  get transaction(): Bytes {
+    let value = this.get("transaction");
+    return value.toBytes();
+  }
+
+  set transaction(value: Bytes) {
+    this.set("transaction", Value.fromBytes(value));
+  }
+}
+
+export class DelegateVote extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save DelegateVote entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save DelegateVote entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("DelegateVote", id.toString(), this);
+  }
+
+  static load(id: string): DelegateVote | null {
+    return store.get("DelegateVote", id) as DelegateVote | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get delegate(): string {
+    let value = this.get("delegate");
+    return value.toString();
+  }
+
+  set delegate(value: string) {
+    this.set("delegate", Value.fromString(value));
+  }
+
+  get newVoteBalance(): BigInt {
+    let value = this.get("newVoteBalance");
+    return value.toBigInt();
+  }
+
+  set newVoteBalance(value: BigInt) {
+    this.set("newVoteBalance", Value.fromBigInt(value));
+  }
+
+  get previousVoteBalance(): BigInt {
+    let value = this.get("previousVoteBalance");
+    return value.toBigInt();
+  }
+
+  set previousVoteBalance(value: BigInt) {
+    this.set("previousVoteBalance", Value.fromBigInt(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+
+  get transaction(): Bytes {
+    let value = this.get("transaction");
+    return value.toBytes();
+  }
+
+  set transaction(value: Bytes) {
+    this.set("transaction", Value.fromBytes(value));
+  }
+}
+
+export class DelegateChange extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save DelegateChange entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save DelegateChange entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("DelegateChange", id.toString(), this);
+  }
+
+  static load(id: string): DelegateChange | null {
+    return store.get("DelegateChange", id) as DelegateChange | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get delegator(): string {
+    let value = this.get("delegator");
+    return value.toString();
+  }
+
+  set delegator(value: string) {
+    this.set("delegator", Value.fromString(value));
+  }
+
+  get currentDelegate(): string {
+    let value = this.get("currentDelegate");
+    return value.toString();
+  }
+
+  set currentDelegate(value: string) {
+    this.set("currentDelegate", Value.fromString(value));
+  }
+
+  get newDelegate(): string {
+    let value = this.get("newDelegate");
+    return value.toString();
+  }
+
+  set newDelegate(value: string) {
+    this.set("newDelegate", Value.fromString(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+
+  get transaction(): Bytes {
+    let value = this.get("transaction");
+    return value.toBytes();
+  }
+
+  set transaction(value: Bytes) {
+    this.set("transaction", Value.fromBytes(value));
+  }
+}
+
+export class DailyRewardReceived extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save DailyRewardReceived entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save DailyRewardReceived entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("DailyRewardReceived", id.toString(), this);
+  }
+
+  static load(id: string): DailyRewardReceived | null {
+    return store.get("DailyRewardReceived", id) as DailyRewardReceived | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get account(): string {
+    let value = this.get("account");
+    return value.toString();
+  }
+
+  set account(value: string) {
+    this.set("account", Value.fromString(value));
+  }
+
+  get amount(): BigDecimal {
+    let value = this.get("amount");
+    return value.toBigDecimal();
+  }
+
+  set amount(value: BigDecimal) {
+    this.set("amount", Value.fromBigDecimal(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+
+  get transaction(): Bytes {
+    let value = this.get("transaction");
+    return value.toBytes();
+  }
+
+  set transaction(value: Bytes) {
+    this.set("transaction", Value.fromBytes(value));
+  }
+}
+
+export class Enter extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Enter entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Enter entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Enter", id.toString(), this);
+  }
+
+  static load(id: string): Enter | null {
+    return store.get("Enter", id) as Enter | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get account(): string {
+    let value = this.get("account");
+    return value.toString();
+  }
+
+  set account(value: string) {
+    this.set("account", Value.fromString(value));
+  }
+
+  get vault(): Bytes {
+    let value = this.get("vault");
+    return value.toBytes();
+  }
+
+  set vault(value: Bytes) {
+    this.set("vault", Value.fromBytes(value));
+  }
+
+  get amount(): BigDecimal {
+    let value = this.get("amount");
+    return value.toBigDecimal();
+  }
+
+  set amount(value: BigDecimal) {
+    this.set("amount", Value.fromBigDecimal(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+
+  get transaction(): Bytes {
+    let value = this.get("transaction");
+    return value.toBytes();
+  }
+
+  set transaction(value: Bytes) {
+    this.set("transaction", Value.fromBytes(value));
+  }
+}
+
+export class Leave extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Leave entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Leave entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Leave", id.toString(), this);
+  }
+
+  static load(id: string): Leave | null {
+    return store.get("Leave", id) as Leave | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get account(): string {
+    let value = this.get("account");
+    return value.toString();
+  }
+
+  set account(value: string) {
+    this.set("account", Value.fromString(value));
+  }
+
+  get vault(): Bytes {
+    let value = this.get("vault");
+    return value.toBytes();
+  }
+
+  set vault(value: Bytes) {
+    this.set("vault", Value.fromBytes(value));
+  }
+
+  get amount(): BigDecimal {
+    let value = this.get("amount");
+    return value.toBigDecimal();
+  }
+
+  set amount(value: BigDecimal) {
+    this.set("amount", Value.fromBigDecimal(value));
+  }
+
+  get shares(): BigDecimal {
+    let value = this.get("shares");
+    return value.toBigDecimal();
+  }
+
+  set shares(value: BigDecimal) {
+    this.set("shares", Value.fromBigDecimal(value));
   }
 
   get timestamp(): BigInt {
