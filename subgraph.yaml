@@ -60,6 +60,8 @@ dataSources:
       abis:
         - name: EVRTCharger
           file: ./abis/EVRTCharger.json
+        - name: EverestToken
+          file: ./abis/EverestToken.json
       eventHandlers:
         - event: Approval(indexed address,indexed address,uint256)
           handler: handleApproval

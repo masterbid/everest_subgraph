@@ -1,5 +1,6 @@
 import { BigDecimal, Bytes, Address, ethereum } from '@graphprotocol/graph-ts'
 import { EverestToken } from '../../generated/EverestToken/EverestToken'
+import { EVRTCharger } from '../../generated/EVRTCharger/EVRTCharger'
 
 import { Account, AccountBalance, AccountBalanceSnapshot, Token, Delegate } from '../../generated/schema'
 
@@ -17,6 +18,43 @@ export function getOrCreateToken(event: ethereum.Event, address: Address): Token
   token = new Token(addressHex)
   token.address = address
   let tokenInstance = EverestToken.bind(address)
+  let tryName = tokenInstance.try_name()
+  if (!tryName.reverted) {
+      token.name = tryName.value
+  }
+  let trySymbol = tokenInstance.try_symbol()
+  if (!trySymbol.reverted) {
+      token.symbol = trySymbol.value
+  }
+  
+  let tryDecimals = tokenInstance.try_decimals()
+  if (!tryDecimals.reverted) {
+    token.decimals = tryDecimals.value
+  }
+  token.eventCount = ZERO
+  token.mintEventCount = ZERO
+  token.burnEventCount = ZERO
+  token.transferEventCount = ZERO
+  
+  let initialSupply = tokenInstance.try_totalSupply()
+  token.totalSupply = initialSupply.reverted ? ZERO.toBigDecimal() : toDecimal(initialSupply.value, token.decimals)
+  token.totalMinted = ZERO.toBigDecimal()
+  token.totalBurned = ZERO.toBigDecimal()
+  token.totalTransferred = ZERO.toBigDecimal()
+  token.save()
+  return token as Token
+}
+
+export function getOrCreateToken1(event: ethereum.Event, address: Address): Token {
+  let addressHex = address.toHexString()
+  let token = Token.load(addressHex)
+  if (token != null) {
+      return token as Token
+  }
+
+  token = new Token(addressHex)
+  token.address = address
+  let tokenInstance = EVRTCharger.bind(address)
   let tryName = tokenInstance.try_name()
   if (!tryName.reverted) {
       token.name = tryName.value

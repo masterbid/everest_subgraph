@@ -20,7 +20,7 @@ import {
   increaseAccountBalance,
   saveAccountBalanceSnapshot,
   GENESIS_ADDRESS
-} from "./core"
+} from "./evrtCore"
 
 import { toDecimal, ONE } from '../helpers/numbers'
 
@@ -105,10 +105,13 @@ export function handleTransfer(event: Transfer): void {
 
 function handleMintEvent(token: Token | null, amount: BigDecimal, destination: Bytes, event: ethereum.Event): MintEvent {
   let mintEvent = new MintEvent(event.transaction.hash.toHex().concat('-').concat(event.logIndex.toString()))
+  let to = getOrCreateAccount(destination)
+  to.save()
+
   mintEvent.token = event.address.toHex()
   mintEvent.amount = amount
   mintEvent.sender = event.transaction.from
-  mintEvent.destination = destination
+  mintEvent.destination = to.id
   mintEvent.minter = event.transaction.from
 
   mintEvent.block = event.block.number
@@ -131,9 +134,12 @@ function handleMintEvent(token: Token | null, amount: BigDecimal, destination: B
 
 function handleBurnEvent(token: Token | null, amount: BigDecimal, burner: Bytes, event: ethereum.Event): BurnEvent {
   let burnEvent = new BurnEvent(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
+  let sender = getOrCreateAccount(event.transaction.from)
+  sender.save()
+
   burnEvent.token = event.address.toHex()
   burnEvent.amount = amount
-  burnEvent.sender = event.transaction.from
+  burnEvent.sender = sender.id
   burnEvent.burner = burner
 
   burnEvent.block = event.block.number
@@ -162,11 +168,16 @@ function handleTransferEvent(
   event: ethereum.Event,
 ): TransferEvent {
   let transferEvent = new TransferEvent(event.transaction.hash.toHex().concat('-').concat(event.logIndex.toString()))
+  let from = getOrCreateAccount(source)
+  let to = getOrCreateAccount(destination)
+  from.save()
+  to.save()
+
   transferEvent.token = event.address.toHex()
   transferEvent.amount = amount
-  transferEvent.sender = getOrCreateAccount(source).id
+  transferEvent.sender = from.id
   transferEvent.source = source
-  transferEvent.destination = getOrCreateAccount(destination).id
+  transferEvent.destination = to.id
 
   transferEvent.block = event.block.number
   transferEvent.timestamp = event.block.timestamp

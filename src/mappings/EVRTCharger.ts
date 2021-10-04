@@ -28,16 +28,17 @@ import {
   decreaseAccountBalance,
   getOrCreateAccount,
   getOrCreateToken,
+  getOrCreateToken1,
   increaseAccountBalance,
   saveAccountBalanceSnapshot,
   getOrCreateDelegate,
   GENESIS_ADDRESS
-} from "./core"
+} from "./EvrtCore"
 
 import { toDecimal, ONE } from '../helpers/numbers'
 
 export function handleApproval(event: Approval): void {
-  let token = getOrCreateToken(event, event.address)
+  let token = getOrCreateToken1(event, event.address)
   let id = event.transaction.from.toHex()
   let approval = ApprovalEvent.load(id)
   if (approval == null) {
@@ -56,7 +57,7 @@ export function handleApproval(event: Approval): void {
 }
 
 export function handleTransfer(event: Transfer): void {
-  let token = getOrCreateToken(event, event.address)
+  let token = getOrCreateToken1(event, event.address)
   if (token != null) {
     let amount = toDecimal(event.params.value, token.decimals)
     let isBurn = event.params.to.toHex() == GENESIS_ADDRESS
@@ -158,15 +159,17 @@ export function handleDelegateVotesChanged(event: DelegateVotesChanged): void {
 }
 
 export function handleEnter(event: Enter): void {
-  let token = getOrCreateToken(event, event.address)
+  let token = getOrCreateToken1(event, event.address)
   let id = event.transaction.hash.toHexString()
   let vault = event.params.penguin
   let amount = toDecimal(event.params.amount, token.decimals)
+  let account = getOrCreateAccount(event.transaction.from)
+  account.save()
 
   let enter = enterEntity.load(id)
   if(enter == null) {
     enter = new enterEntity(id)
-    enter.account = getOrCreateAccount(event.transaction.from).id
+    enter.account = account.id
     enter.vault = vault
     enter.amount = amount
     enter.timestamp = event.block.timestamp
@@ -177,16 +180,18 @@ export function handleEnter(event: Enter): void {
 }
 
 export function handleLeave(event: Leave): void {
-  let token = getOrCreateToken(event, event.address)
+  let token = getOrCreateToken1(event, event.address)
   let id = event.transaction.hash.toHexString()
   let vault = event.params.penguin
   let amount = toDecimal(event.params.amount, token.decimals)
   let shares = toDecimal(event.params.shares, token.decimals)
+  let account = getOrCreateAccount(event.transaction.from)
+  account.save()
 
   let leave = leaveEntity.load(id)
   if(leave == null) {
     leave = new leaveEntity(id)
-    leave.account = getOrCreateAccount(event.transaction.from).id
+    leave.account = account.id
     leave.vault = vault
     leave.amount = amount
     leave.shares = shares
@@ -201,11 +206,13 @@ export function handleDailyRewardsReceived(event: DailyRewardsReceived): void {
   let token = getOrCreateToken(event, event.address)
   let id = event.transaction.hash.toHexString()
   let amount = toDecimal(event.params.amountEvrt, token.decimals)
-  
-  let reward = leaveEntity.load(id)
+  let account = getOrCreateAccount(event.transaction.from)
+  account.save()
+
+  let reward = DailyReward.load(id)
   if(reward == null) {
-    reward = new leaveEntity(id)
-    reward.account = getOrCreateAccount(event.transaction.from).id
+    reward = new DailyReward(id)
+    reward.account = account.id
     reward.amount = amount
     reward.timestamp = event.block.timestamp
     reward.transaction = event.transaction.hash
@@ -216,12 +223,14 @@ export function handleDailyRewardsReceived(event: DailyRewardsReceived): void {
 
 function handleMintEvent(token: Token | null, amount: BigDecimal, destination: Bytes, event: ethereum.Event): MintEvent {
   let mintEvent = new MintEvent(event.transaction.hash.toHex().concat('-').concat(event.logIndex.toString()))
+  let to = getOrCreateAccount(destination)
+  to.save()
+
   mintEvent.token = event.address.toHex()
   mintEvent.amount = amount
   mintEvent.sender = event.transaction.from
-  mintEvent.destination = destination
+  mintEvent.destination = to.id
   mintEvent.minter = event.transaction.from
-
   mintEvent.block = event.block.number
   mintEvent.timestamp = event.block.timestamp
   mintEvent.transaction = event.transaction.hash
@@ -242,11 +251,13 @@ function handleMintEvent(token: Token | null, amount: BigDecimal, destination: B
 
 function handleBurnEvent(token: Token | null, amount: BigDecimal, burner: Bytes, event: ethereum.Event): BurnEvent {
   let burnEvent = new BurnEvent(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
+  let sender = getOrCreateAccount(event.transaction.from)
+  sender.save()
+
   burnEvent.token = event.address.toHex()
   burnEvent.amount = amount
-  burnEvent.sender = event.transaction.from
+  burnEvent.sender = sender.id
   burnEvent.burner = burner
-
   burnEvent.block = event.block.number
   burnEvent.timestamp = event.block.timestamp
   burnEvent.transaction = event.transaction.hash
@@ -273,11 +284,16 @@ function handleTransferEvent(
   event: ethereum.Event,
 ): TransferEvent {
   let transferEvent = new TransferEvent(event.transaction.hash.toHex().concat('-').concat(event.logIndex.toString()))
+  let from = getOrCreateAccount(source)
+  let to = getOrCreateAccount(destination)
+  from.save()
+  to.save()
+
   transferEvent.token = event.address.toHex()
   transferEvent.amount = amount
-  transferEvent.sender = getOrCreateAccount(source).id
+  transferEvent.sender = from.id
   transferEvent.source = source
-  transferEvent.destination = getOrCreateAccount(destination).id
+  transferEvent.destination = to.id
 
   transferEvent.block = event.block.number
   transferEvent.timestamp = event.block.timestamp

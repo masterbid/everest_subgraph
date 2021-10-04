@@ -51,13 +51,21 @@ export class Account extends Entity {
     this.set("address", Value.fromBytes(value));
   }
 
-  get delegate(): string {
+  get delegate(): string | null {
     let value = this.get("delegate");
-    return value.toString();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set delegate(value: string) {
-    this.set("delegate", Value.fromString(value));
+  set delegate(value: string | null) {
+    if (value === null) {
+      this.unset("delegate");
+    } else {
+      this.set("delegate", Value.fromString(value as string));
+    }
   }
 
   get inTransfers(): Array<string> {
@@ -85,6 +93,42 @@ export class Account extends Entity {
 
   set approvals(value: Array<string>) {
     this.set("approvals", Value.fromStringArray(value));
+  }
+
+  get mintsReceived(): Array<string> {
+    let value = this.get("mintsReceived");
+    return value.toStringArray();
+  }
+
+  set mintsReceived(value: Array<string>) {
+    this.set("mintsReceived", Value.fromStringArray(value));
+  }
+
+  get burns(): Array<string> {
+    let value = this.get("burns");
+    return value.toStringArray();
+  }
+
+  set burns(value: Array<string>) {
+    this.set("burns", Value.fromStringArray(value));
+  }
+
+  get staked(): Array<string> {
+    let value = this.get("staked");
+    return value.toStringArray();
+  }
+
+  set staked(value: Array<string>) {
+    this.set("staked", Value.fromStringArray(value));
+  }
+
+  get unstaked(): Array<string> {
+    let value = this.get("unstaked");
+    return value.toStringArray();
+  }
+
+  set unstaked(value: Array<string>) {
+    this.set("unstaked", Value.fromStringArray(value));
   }
 
   get balances(): Array<string> {
@@ -740,13 +784,13 @@ export class MintEvent extends Entity {
     this.set("minter", Value.fromBytes(value));
   }
 
-  get destination(): Bytes {
+  get destination(): string {
     let value = this.get("destination");
-    return value.toBytes();
+    return value.toString();
   }
 
-  set destination(value: Bytes) {
-    this.set("destination", Value.fromBytes(value));
+  set destination(value: string) {
+    this.set("destination", Value.fromString(value));
   }
 
   get block(): BigInt {
@@ -825,13 +869,13 @@ export class BurnEvent extends Entity {
     this.set("amount", Value.fromBigDecimal(value));
   }
 
-  get sender(): Bytes {
+  get sender(): string {
     let value = this.get("sender");
-    return value.toBytes();
+    return value.toString();
   }
 
-  set sender(value: Bytes) {
-    this.set("sender", Value.fromBytes(value));
+  set sender(value: string) {
+    this.set("sender", Value.fromString(value));
   }
 
   get burner(): Bytes {
@@ -841,15 +885,6 @@ export class BurnEvent extends Entity {
 
   set burner(value: Bytes) {
     this.set("burner", Value.fromBytes(value));
-  }
-
-  get destination(): Bytes {
-    let value = this.get("destination");
-    return value.toBytes();
-  }
-
-  set destination(value: Bytes) {
-    this.set("destination", Value.fromBytes(value));
   }
 
   get block(): BigInt {
