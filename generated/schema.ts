@@ -1386,3 +1386,541 @@ export class Leave extends Entity {
     this.set("transaction", Value.fromBytes(value));
   }
 }
+
+export class Recovered extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Recovered entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Recovered entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Recovered", id.toString(), this);
+  }
+
+  static load(id: string): Recovered | null {
+    return store.get("Recovered", id) as Recovered | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get token(): string {
+    let value = this.get("token");
+    return value.toString();
+  }
+
+  set token(value: string) {
+    this.set("token", Value.fromString(value));
+  }
+
+  get amount(): BigInt {
+    let value = this.get("amount");
+    return value.toBigInt();
+  }
+
+  set amount(value: BigInt) {
+    this.set("amount", Value.fromBigInt(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+
+  get transaction(): Bytes {
+    let value = this.get("transaction");
+    return value.toBytes();
+  }
+
+  set transaction(value: Bytes) {
+    this.set("transaction", Value.fromBytes(value));
+  }
+}
+
+export class StakingRewardsToken extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save StakingRewardsToken entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save StakingRewardsToken entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("StakingRewardsToken", id.toString(), this);
+  }
+
+  static load(id: string): StakingRewardsToken | null {
+    return store.get("StakingRewardsToken", id) as StakingRewardsToken | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get address(): Bytes {
+    let value = this.get("address");
+    return value.toBytes();
+  }
+
+  set address(value: Bytes) {
+    this.set("address", Value.fromBytes(value));
+  }
+
+  get rewardToken(): string {
+    let value = this.get("rewardToken");
+    return value.toString();
+  }
+
+  set rewardToken(value: string) {
+    this.set("rewardToken", Value.fromString(value));
+  }
+
+  get stakeToken(): string {
+    let value = this.get("stakeToken");
+    return value.toString();
+  }
+
+  set stakeToken(value: string) {
+    this.set("stakeToken", Value.fromString(value));
+  }
+
+  get totalSupply(): BigInt {
+    let value = this.get("totalSupply");
+    return value.toBigInt();
+  }
+
+  set totalSupply(value: BigInt) {
+    this.set("totalSupply", Value.fromBigInt(value));
+  }
+
+  get totalStaked(): BigInt {
+    let value = this.get("totalStaked");
+    return value.toBigInt();
+  }
+
+  set totalStaked(value: BigInt) {
+    this.set("totalStaked", Value.fromBigInt(value));
+  }
+
+  get totalWithdrawn(): BigInt {
+    let value = this.get("totalWithdrawn");
+    return value.toBigInt();
+  }
+
+  set totalWithdrawn(value: BigInt) {
+    this.set("totalWithdrawn", Value.fromBigInt(value));
+  }
+
+  get totalRewardAdded(): BigInt {
+    let value = this.get("totalRewardAdded");
+    return value.toBigInt();
+  }
+
+  set totalRewardAdded(value: BigInt) {
+    this.set("totalRewardAdded", Value.fromBigInt(value));
+  }
+
+  get totalRewardPaid(): BigInt {
+    let value = this.get("totalRewardPaid");
+    return value.toBigInt();
+  }
+
+  set totalRewardPaid(value: BigInt) {
+    this.set("totalRewardPaid", Value.fromBigInt(value));
+  }
+}
+
+export class RewardAdded extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save RewardAdded entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save RewardAdded entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("RewardAdded", id.toString(), this);
+  }
+
+  static load(id: string): RewardAdded | null {
+    return store.get("RewardAdded", id) as RewardAdded | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get reward(): BigInt {
+    let value = this.get("reward");
+    return value.toBigInt();
+  }
+
+  set reward(value: BigInt) {
+    this.set("reward", Value.fromBigInt(value));
+  }
+
+  get rewardToken(): string {
+    let value = this.get("rewardToken");
+    return value.toString();
+  }
+
+  set rewardToken(value: string) {
+    this.set("rewardToken", Value.fromString(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+
+  get transaction(): Bytes {
+    let value = this.get("transaction");
+    return value.toBytes();
+  }
+
+  set transaction(value: Bytes) {
+    this.set("transaction", Value.fromBytes(value));
+  }
+}
+
+export class RewardPaid extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save RewardPaid entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save RewardPaid entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("RewardPaid", id.toString(), this);
+  }
+
+  static load(id: string): RewardPaid | null {
+    return store.get("RewardPaid", id) as RewardPaid | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get user(): string {
+    let value = this.get("user");
+    return value.toString();
+  }
+
+  set user(value: string) {
+    this.set("user", Value.fromString(value));
+  }
+
+  get reward(): BigInt {
+    let value = this.get("reward");
+    return value.toBigInt();
+  }
+
+  set reward(value: BigInt) {
+    this.set("reward", Value.fromBigInt(value));
+  }
+
+  get rewardtoken(): string {
+    let value = this.get("rewardtoken");
+    return value.toString();
+  }
+
+  set rewardtoken(value: string) {
+    this.set("rewardtoken", Value.fromString(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+
+  get transaction(): Bytes {
+    let value = this.get("transaction");
+    return value.toBytes();
+  }
+
+  set transaction(value: Bytes) {
+    this.set("transaction", Value.fromBytes(value));
+  }
+}
+
+export class RewardsDurationUpdated extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(
+      id !== null,
+      "Cannot save RewardsDurationUpdated entity without an ID"
+    );
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save RewardsDurationUpdated entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("RewardsDurationUpdated", id.toString(), this);
+  }
+
+  static load(id: string): RewardsDurationUpdated | null {
+    return store.get(
+      "RewardsDurationUpdated",
+      id
+    ) as RewardsDurationUpdated | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get newDuration(): BigInt {
+    let value = this.get("newDuration");
+    return value.toBigInt();
+  }
+
+  set newDuration(value: BigInt) {
+    this.set("newDuration", Value.fromBigInt(value));
+  }
+
+  get block(): BigInt {
+    let value = this.get("block");
+    return value.toBigInt();
+  }
+
+  set block(value: BigInt) {
+    this.set("block", Value.fromBigInt(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+
+  get transaction(): Bytes {
+    let value = this.get("transaction");
+    return value.toBytes();
+  }
+
+  set transaction(value: Bytes) {
+    this.set("transaction", Value.fromBytes(value));
+  }
+}
+
+export class Staked extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Staked entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Staked entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Staked", id.toString(), this);
+  }
+
+  static load(id: string): Staked | null {
+    return store.get("Staked", id) as Staked | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get user(): string {
+    let value = this.get("user");
+    return value.toString();
+  }
+
+  set user(value: string) {
+    this.set("user", Value.fromString(value));
+  }
+
+  get amount(): BigInt {
+    let value = this.get("amount");
+    return value.toBigInt();
+  }
+
+  set amount(value: BigInt) {
+    this.set("amount", Value.fromBigInt(value));
+  }
+
+  get stakedToken(): string {
+    let value = this.get("stakedToken");
+    return value.toString();
+  }
+
+  set stakedToken(value: string) {
+    this.set("stakedToken", Value.fromString(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+
+  get transaction(): Bytes {
+    let value = this.get("transaction");
+    return value.toBytes();
+  }
+
+  set transaction(value: Bytes) {
+    this.set("transaction", Value.fromBytes(value));
+  }
+}
+
+export class Withdrawn extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Withdrawn entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Withdrawn entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Withdrawn", id.toString(), this);
+  }
+
+  static load(id: string): Withdrawn | null {
+    return store.get("Withdrawn", id) as Withdrawn | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get user(): string {
+    let value = this.get("user");
+    return value.toString();
+  }
+
+  set user(value: string) {
+    this.set("user", Value.fromString(value));
+  }
+
+  get amount(): BigInt {
+    let value = this.get("amount");
+    return value.toBigInt();
+  }
+
+  set amount(value: BigInt) {
+    this.set("amount", Value.fromBigInt(value));
+  }
+
+  get withdrawnToken(): string {
+    let value = this.get("withdrawnToken");
+    return value.toString();
+  }
+
+  set withdrawnToken(value: string) {
+    this.set("withdrawnToken", Value.fromString(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+
+  get transaction(): Bytes {
+    let value = this.get("transaction");
+    return value.toBytes();
+  }
+
+  set transaction(value: Bytes) {
+    this.set("transaction", Value.fromBytes(value));
+  }
+}

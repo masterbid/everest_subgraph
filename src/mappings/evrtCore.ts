@@ -1,8 +1,10 @@
 import { BigDecimal, Bytes, Address, ethereum } from '@graphprotocol/graph-ts'
 import { EverestToken } from '../../generated/EverestToken/EverestToken'
 import { EVRTCharger } from '../../generated/EVRTCharger/EVRTCharger'
+import { StakingRewards } from '../../generated/StakingRewards/StakingRewards'
+import { ERC20 } from '../../generated/StakingRewards/ERC20'
 
-import { Account, AccountBalance, AccountBalanceSnapshot, Token, Delegate } from '../../generated/schema'
+import { Account, AccountBalance, AccountBalanceSnapshot, Token, StakingRewardsToken, Delegate } from '../../generated/schema'
 
 import { toDecimal, ZERO } from '../helpers/numbers'
 
@@ -80,6 +82,65 @@ export function getOrCreateToken1(event: ethereum.Event, address: Address): Toke
   token.totalTransferred = ZERO.toBigDecimal()
   token.save()
   return token as Token
+}
+
+export function getOrCreateERC20Token(event: ethereum.Event, address: Address): Token {
+  let addressHex = address.toHexString()
+  let token = Token.load(addressHex)
+  if (token != null) {
+      return token as Token
+  }
+
+  token = new Token(addressHex)
+  token.address = address
+  let tokenInstance = ERC20.bind(address)
+  let tryName = tokenInstance.try_name()
+  if (!tryName.reverted) {
+      token.name = tryName.value
+  }
+  let trySymbol = tokenInstance.try_symbol()
+  if (!trySymbol.reverted) {
+      token.symbol = trySymbol.value
+  }
+  
+  let tryDecimals = tokenInstance.try_decimals()
+  if (!tryDecimals.reverted) {
+    token.decimals = tryDecimals.value
+  }
+  token.eventCount = ZERO
+  token.mintEventCount = ZERO
+  token.burnEventCount = ZERO
+  token.transferEventCount = ZERO
+  
+  let initialSupply = tokenInstance.try_totalSupply()
+  token.totalSupply = initialSupply.reverted ? ZERO.toBigDecimal() : toDecimal(initialSupply.value, token.decimals)
+  token.totalMinted = ZERO.toBigDecimal()
+  token.totalBurned = ZERO.toBigDecimal()
+  token.totalTransferred = ZERO.toBigDecimal()
+  token.save()
+  return token as Token
+}
+
+export function getOrCreateStakingRewardToken(event: ethereum.Event, address: Address): StakingRewardsToken {
+  let addressHex = address.toHexString()
+  let token = StakingRewardsToken.load(addressHex)
+  if (token != null) {
+      return token as StakingRewardsToken
+  }
+
+  token = new StakingRewardsToken(addressHex)
+  token.address = address
+  let tokenInstance = StakingRewards.bind(address)
+  token.rewardToken = getOrCreateERC20Token(event, tokenInstance.rewardsToken()).id
+  token.stakeToken = getOrCreateERC20Token(event, tokenInstance.stakingToken()).id
+  let initialSupply = tokenInstance.try_totalSupply()
+  token.totalSupply = initialSupply.reverted ? ZERO : initialSupply.value
+  token.totalRewardPaid = ZERO
+  token.totalRewardAdded = ZERO
+  token.totalStaked = ZERO
+  token.totalWithdrawn = ZERO
+  token.save()
+  return token as StakingRewardsToken
 }
 
 export function getOrCreateAccount(accountAddress: Bytes): Account {

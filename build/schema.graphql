@@ -160,6 +160,68 @@ type Leave @entity {
   transaction: Bytes!
 }
 
+type Recovered @entity {
+  id: ID!
+  token: Token!
+  amount: BigInt!
+  timestamp: BigInt!
+  transaction: Bytes!
+}
+
+type StakingRewardsToken @entity {
+  id: ID!
+  address: Bytes!
+  rewardToken: Token!
+  stakeToken: Token!
+  totalSupply: BigInt!
+  totalStaked: BigInt!
+  totalWithdrawn: BigInt!
+  totalRewardAdded: BigInt!
+  totalRewardPaid: BigInt!
+}
+
+type RewardAdded @entity {
+  id: ID!
+  reward: BigInt!
+  rewardToken: StakingRewardsToken!
+  timestamp: BigInt!
+  transaction: Bytes!
+}
+
+type RewardPaid @entity {
+  id: ID!
+  user: Account!
+  reward: BigInt!
+  rewardtoken: StakingRewardsToken!
+  timestamp: BigInt!
+  transaction: Bytes!
+}
+
+type RewardsDurationUpdated @entity {
+  id: ID!
+  newDuration: BigInt!
+  timestamp: BigInt!
+  transaction: Bytes!
+}
+
+type Staked @entity {
+  id: ID!
+  user: Account!
+  amount: BigInt!
+  stakedToken: StakingRewardsToken!
+  totalStaked: BigInt!
+  timestamp: BigInt!
+  transaction: Bytes!
+}
+
+type Withdrawn @entity {
+  id: ID!
+  user: Account!
+  amount: BigInt!
+  timestamp: BigInt!
+  transaction: Bytes!
+}
+
 
 
 
