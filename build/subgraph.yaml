@@ -79,7 +79,7 @@ dataSources:
           handler: handleLeave
       file: EVRTCharger\EVRTCharger.wasm
   - kind: ethereum/contract
-    name: StakingRewards
+    name: EVRT/AVAX
     network: avalanche
     source:
       address: "0xD81Bbd31D6dA2b0D52f8c02B276940Be9423c1d3"
@@ -95,7 +95,7 @@ dataSources:
         - AccountBalance
         - AccountBalanceSnapshot
         - Token
-        - StakingRewardToken
+        - Pool
         - Recovered
         - RewardAdded
         - RewardPaid
@@ -104,9 +104,9 @@ dataSources:
         - Withdrawn
       abis:
         - name: StakingRewards
-          file: StakingRewards\abis\StakingRewards.json
+          file: EVRT\AVAX\abis\StakingRewards.json
         - name: ERC20
-          file: StakingRewards\abis\IERC20.json
+          file: EVRT\AVAX\abis\IERC20.json
       eventHandlers:
         - event: Recovered(address,uint256)
           handler: handleRecovered
@@ -120,4 +120,133 @@ dataSources:
           handler: handleStaked
         - event: Withdrawn(indexed address,uint256)
           handler: handleWithdrawn
-      file: StakingRewards\StakingRewards.wasm
+      file: EVRT\AVAX\EVRT\AVAX.wasm
+  - kind: ethereum/contract
+    name: LYD/AVAX
+    network: avalanche
+    source:
+      address: "0xE34E22bC053D529c649EA3808Bbc1caA43687cdb"
+      abi: StakingRewards
+      startBlock: 4758881
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - ApprovalEvent
+        - Account
+        - AccountBalance
+        - AccountBalanceSnapshot
+        - Token
+        - Pool
+        - Recovered
+        - RewardAdded
+        - RewardPaid
+        - RewardsDurationUpdated
+        - Staked
+        - Withdrawn
+      abis:
+        - name: StakingRewards
+          file: LYD\AVAX\abis\StakingRewards.json
+        - name: ERC20
+          file: LYD\AVAX\abis\IERC20.json
+      eventHandlers:
+        - event: Recovered(address,uint256)
+          handler: handleRecovered
+        - event: RewardAdded(uint256)
+          handler: handleRewardAdded
+        - event: RewardPaid(indexed address,uint256)
+          handler: handleRewardPaid
+        - event: RewardsDurationUpdated(uint256)
+          handler: handleRewardsdurationUpdated
+        - event: Staked(indexed address,uint256)
+          handler: handleStaked
+        - event: Withdrawn(indexed address,uint256)
+          handler: handleWithdrawn
+      file: EVRT\AVAX\EVRT\AVAX.wasm
+  - kind: ethereum/contract
+    name: EVRT/AVAXJLP
+    network: avalanche
+    source:
+      address: "0x6f34201abc4fFAA2d3C86563Bc603bc3c0BD8f7f"
+      abi: StakingRewards
+      startBlock: 4875595
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - ApprovalEvent
+        - Account
+        - AccountBalance
+        - AccountBalanceSnapshot
+        - Token
+        - Pool
+        - Recovered
+        - RewardAdded
+        - RewardPaid
+        - RewardsDurationUpdated
+        - Staked
+        - Withdrawn
+      abis:
+        - name: StakingRewards
+          file: EVRT\AVAXJLP\abis\StakingRewards.json
+        - name: ERC20
+          file: EVRT\AVAXJLP\abis\IERC20.json
+      eventHandlers:
+        - event: Recovered(address,uint256)
+          handler: handleRecovered
+        - event: RewardAdded(uint256)
+          handler: handleRewardAdded
+        - event: RewardPaid(indexed address,uint256)
+          handler: handleRewardPaid
+        - event: RewardsDurationUpdated(uint256)
+          handler: handleRewardsdurationUpdated
+        - event: Staked(indexed address,uint256)
+          handler: handleStaked
+        - event: Withdrawn(indexed address,uint256)
+          handler: handleWithdrawn
+      file: EVRT\AVAX\EVRT\AVAX.wasm
+  - kind: ethereum/contract
+    name: EVRT/AVAXPGL
+    network: avalanche
+    source:
+      address: "0xbA6B26AE795C68770A86C6D020e952B60a48da5f"
+      abi: StakingRewards
+      startBlock: 4875820
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - ApprovalEvent
+        - Account
+        - AccountBalance
+        - AccountBalanceSnapshot
+        - Token
+        - Pool
+        - Recovered
+        - RewardAdded
+        - RewardPaid
+        - RewardsDurationUpdated
+        - Staked
+        - Withdrawn
+      abis:
+        - name: StakingRewards
+          file: EVRT\AVAXPGL\abis\StakingRewards.json
+        - name: ERC20
+          file: EVRT\AVAXPGL\abis\IERC20.json
+      eventHandlers:
+        - event: Recovered(address,uint256)
+          handler: handleRecovered
+        - event: RewardAdded(uint256)
+          handler: handleRewardAdded
+        - event: RewardPaid(indexed address,uint256)
+          handler: handleRewardPaid
+        - event: RewardsDurationUpdated(uint256)
+          handler: handleRewardsdurationUpdated
+        - event: Staked(indexed address,uint256)
+          handler: handleStaked
+        - event: Withdrawn(indexed address,uint256)
+          handler: handleWithdrawn
+      file: EVRT\AVAX\EVRT\AVAX.wasm

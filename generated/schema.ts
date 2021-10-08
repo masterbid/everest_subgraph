@@ -51,6 +51,15 @@ export class Account extends Entity {
     this.set("address", Value.fromBytes(value));
   }
 
+  get balances(): Array<string> {
+    let value = this.get("balances");
+    return value.toStringArray();
+  }
+
+  set balances(value: Array<string>) {
+    this.set("balances", Value.fromStringArray(value));
+  }
+
   get delegate(): string | null {
     let value = this.get("delegate");
     if (value === null || value.kind == ValueKind.NULL) {
@@ -113,31 +122,31 @@ export class Account extends Entity {
     this.set("burns", Value.fromStringArray(value));
   }
 
-  get staked(): Array<string> {
-    let value = this.get("staked");
+  get poolStake(): Array<string> {
+    let value = this.get("poolStake");
     return value.toStringArray();
   }
 
-  set staked(value: Array<string>) {
-    this.set("staked", Value.fromStringArray(value));
+  set poolStake(value: Array<string>) {
+    this.set("poolStake", Value.fromStringArray(value));
   }
 
-  get unstaked(): Array<string> {
-    let value = this.get("unstaked");
+  get poolWithdrawal(): Array<string> {
+    let value = this.get("poolWithdrawal");
     return value.toStringArray();
   }
 
-  set unstaked(value: Array<string>) {
-    this.set("unstaked", Value.fromStringArray(value));
+  set poolWithdrawal(value: Array<string>) {
+    this.set("poolWithdrawal", Value.fromStringArray(value));
   }
 
-  get balances(): Array<string> {
-    let value = this.get("balances");
+  get poolReward(): Array<string> {
+    let value = this.get("poolReward");
     return value.toStringArray();
   }
 
-  set balances(value: Array<string>) {
-    this.set("balances", Value.fromStringArray(value));
+  set poolReward(value: Array<string>) {
+    this.set("poolReward", Value.fromStringArray(value));
   }
 }
 
@@ -1426,13 +1435,13 @@ export class Recovered extends Entity {
     this.set("token", Value.fromString(value));
   }
 
-  get amount(): BigInt {
+  get amount(): BigDecimal {
     let value = this.get("amount");
-    return value.toBigInt();
+    return value.toBigDecimal();
   }
 
-  set amount(value: BigInt) {
-    this.set("amount", Value.fromBigInt(value));
+  set amount(value: BigDecimal) {
+    this.set("amount", Value.fromBigDecimal(value));
   }
 
   get timestamp(): BigInt {
@@ -1454,7 +1463,7 @@ export class Recovered extends Entity {
   }
 }
 
-export class StakingRewardsToken extends Entity {
+export class Pool extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -1462,17 +1471,17 @@ export class StakingRewardsToken extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id !== null, "Cannot save StakingRewardsToken entity without an ID");
+    assert(id !== null, "Cannot save Pool entity without an ID");
     assert(
       id.kind == ValueKind.STRING,
-      "Cannot save StakingRewardsToken entity with non-string ID. " +
+      "Cannot save Pool entity with non-string ID. " +
         'Considering using .toHex() to convert the "id" to a string.'
     );
-    store.set("StakingRewardsToken", id.toString(), this);
+    store.set("Pool", id.toString(), this);
   }
 
-  static load(id: string): StakingRewardsToken | null {
-    return store.get("StakingRewardsToken", id) as StakingRewardsToken | null;
+  static load(id: string): Pool | null {
+    return store.get("Pool", id) as Pool | null;
   }
 
   get id(): string {
@@ -1493,6 +1502,24 @@ export class StakingRewardsToken extends Entity {
     this.set("address", Value.fromBytes(value));
   }
 
+  get rewardTokenAddress(): Bytes {
+    let value = this.get("rewardTokenAddress");
+    return value.toBytes();
+  }
+
+  set rewardTokenAddress(value: Bytes) {
+    this.set("rewardTokenAddress", Value.fromBytes(value));
+  }
+
+  get stakeTokenAddress(): Bytes {
+    let value = this.get("stakeTokenAddress");
+    return value.toBytes();
+  }
+
+  set stakeTokenAddress(value: Bytes) {
+    this.set("stakeTokenAddress", Value.fromBytes(value));
+  }
+
   get rewardToken(): string {
     let value = this.get("rewardToken");
     return value.toString();
@@ -1511,49 +1538,49 @@ export class StakingRewardsToken extends Entity {
     this.set("stakeToken", Value.fromString(value));
   }
 
-  get totalSupply(): BigInt {
+  get totalSupply(): BigDecimal {
     let value = this.get("totalSupply");
-    return value.toBigInt();
+    return value.toBigDecimal();
   }
 
-  set totalSupply(value: BigInt) {
-    this.set("totalSupply", Value.fromBigInt(value));
+  set totalSupply(value: BigDecimal) {
+    this.set("totalSupply", Value.fromBigDecimal(value));
   }
 
-  get totalStaked(): BigInt {
+  get totalStaked(): BigDecimal {
     let value = this.get("totalStaked");
-    return value.toBigInt();
+    return value.toBigDecimal();
   }
 
-  set totalStaked(value: BigInt) {
-    this.set("totalStaked", Value.fromBigInt(value));
+  set totalStaked(value: BigDecimal) {
+    this.set("totalStaked", Value.fromBigDecimal(value));
   }
 
-  get totalWithdrawn(): BigInt {
+  get totalWithdrawn(): BigDecimal {
     let value = this.get("totalWithdrawn");
-    return value.toBigInt();
+    return value.toBigDecimal();
   }
 
-  set totalWithdrawn(value: BigInt) {
-    this.set("totalWithdrawn", Value.fromBigInt(value));
+  set totalWithdrawn(value: BigDecimal) {
+    this.set("totalWithdrawn", Value.fromBigDecimal(value));
   }
 
-  get totalRewardAdded(): BigInt {
+  get totalRewardAdded(): BigDecimal {
     let value = this.get("totalRewardAdded");
-    return value.toBigInt();
+    return value.toBigDecimal();
   }
 
-  set totalRewardAdded(value: BigInt) {
-    this.set("totalRewardAdded", Value.fromBigInt(value));
+  set totalRewardAdded(value: BigDecimal) {
+    this.set("totalRewardAdded", Value.fromBigDecimal(value));
   }
 
-  get totalRewardPaid(): BigInt {
+  get totalRewardPaid(): BigDecimal {
     let value = this.get("totalRewardPaid");
-    return value.toBigInt();
+    return value.toBigDecimal();
   }
 
-  set totalRewardPaid(value: BigInt) {
-    this.set("totalRewardPaid", Value.fromBigInt(value));
+  set totalRewardPaid(value: BigDecimal) {
+    this.set("totalRewardPaid", Value.fromBigDecimal(value));
   }
 }
 
@@ -1587,13 +1614,13 @@ export class RewardAdded extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get reward(): BigInt {
+  get reward(): BigDecimal {
     let value = this.get("reward");
-    return value.toBigInt();
+    return value.toBigDecimal();
   }
 
-  set reward(value: BigInt) {
-    this.set("reward", Value.fromBigInt(value));
+  set reward(value: BigDecimal) {
+    this.set("reward", Value.fromBigDecimal(value));
   }
 
   get rewardToken(): string {
@@ -1663,13 +1690,13 @@ export class RewardPaid extends Entity {
     this.set("user", Value.fromString(value));
   }
 
-  get reward(): BigInt {
+  get reward(): BigDecimal {
     let value = this.get("reward");
-    return value.toBigInt();
+    return value.toBigDecimal();
   }
 
-  set reward(value: BigInt) {
-    this.set("reward", Value.fromBigInt(value));
+  set reward(value: BigDecimal) {
+    this.set("reward", Value.fromBigDecimal(value));
   }
 
   get rewardtoken(): string {
@@ -1812,13 +1839,13 @@ export class Staked extends Entity {
     this.set("user", Value.fromString(value));
   }
 
-  get amount(): BigInt {
+  get amount(): BigDecimal {
     let value = this.get("amount");
-    return value.toBigInt();
+    return value.toBigDecimal();
   }
 
-  set amount(value: BigInt) {
-    this.set("amount", Value.fromBigInt(value));
+  set amount(value: BigDecimal) {
+    this.set("amount", Value.fromBigDecimal(value));
   }
 
   get stakedToken(): string {
@@ -1888,13 +1915,13 @@ export class Withdrawn extends Entity {
     this.set("user", Value.fromString(value));
   }
 
-  get amount(): BigInt {
+  get amount(): BigDecimal {
     let value = this.get("amount");
-    return value.toBigInt();
+    return value.toBigDecimal();
   }
 
-  set amount(value: BigInt) {
-    this.set("amount", Value.fromBigInt(value));
+  set amount(value: BigDecimal) {
+    this.set("amount", Value.fromBigDecimal(value));
   }
 
   get withdrawnToken(): string {

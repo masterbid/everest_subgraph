@@ -2,15 +2,16 @@
 type Account @entity {
   id: ID! #<accountAddress>
   address: Bytes!
+  balances: [AccountBalance!]! @derivedFrom(field: "account")
   delegate: Delegate
   inTransfers: [TransferEvent!]! @derivedFrom(field: "destination")
   outTransfers: [TransferEvent!]! @derivedFrom(field: "sender")
   approvals: [ApprovalEvent!]! @derivedFrom(field: "owner")
   mintsReceived: [MintEvent!]! @derivedFrom(field: "destination")
   burns: [BurnEvent!]! @derivedFrom(field: "sender")
-  staked: [Enter!]! @derivedFrom(field: "account")
-  unstaked: [Leave!]! @derivedFrom(field: "account")
-  balances: [AccountBalance!]! @derivedFrom(field: "account")
+  poolStake: [Staked!]! @derivedFrom(field: "user")
+  poolWithdrawal: [Withdrawn!]! @derivedFrom(field: "user")
+  poolReward: [RewardPaid!]! @derivedFrom(field: "user")
 }
 
 type AccountBalance @entity {
@@ -163,27 +164,29 @@ type Leave @entity {
 type Recovered @entity {
   id: ID!
   token: Token!
-  amount: BigInt!
+  amount: BigDecimal!
   timestamp: BigInt!
   transaction: Bytes!
 }
 
-type StakingRewardsToken @entity {
+type Pool @entity {
   id: ID!
   address: Bytes!
+  rewardTokenAddress: Bytes!
+  stakeTokenAddress: Bytes!
   rewardToken: Token!
   stakeToken: Token!
-  totalSupply: BigInt!
-  totalStaked: BigInt!
-  totalWithdrawn: BigInt!
-  totalRewardAdded: BigInt!
-  totalRewardPaid: BigInt!
+  totalSupply: BigDecimal!
+  totalStaked: BigDecimal!
+  totalWithdrawn: BigDecimal!
+  totalRewardAdded: BigDecimal!
+  totalRewardPaid: BigDecimal!
 }
 
 type RewardAdded @entity {
   id: ID!
-  reward: BigInt!
-  rewardToken: StakingRewardsToken!
+  reward: BigDecimal!
+  rewardToken: Token!
   timestamp: BigInt!
   transaction: Bytes!
 }
@@ -191,8 +194,8 @@ type RewardAdded @entity {
 type RewardPaid @entity {
   id: ID!
   user: Account!
-  reward: BigInt!
-  rewardtoken: StakingRewardsToken!
+  reward: BigDecimal!
+  rewardtoken: Token!
   timestamp: BigInt!
   transaction: Bytes!
 }
@@ -200,6 +203,7 @@ type RewardPaid @entity {
 type RewardsDurationUpdated @entity {
   id: ID!
   newDuration: BigInt!
+  block: BigInt!
   timestamp: BigInt!
   transaction: Bytes!
 }
@@ -207,9 +211,8 @@ type RewardsDurationUpdated @entity {
 type Staked @entity {
   id: ID!
   user: Account!
-  amount: BigInt!
-  stakedToken: StakingRewardsToken!
-  totalStaked: BigInt!
+  amount: BigDecimal!
+  stakedToken: Token!
   timestamp: BigInt!
   transaction: Bytes!
 }
@@ -217,7 +220,8 @@ type Staked @entity {
 type Withdrawn @entity {
   id: ID!
   user: Account!
-  amount: BigInt!
+  amount: BigDecimal!
+  withdrawnToken: Token!
   timestamp: BigInt!
   transaction: Bytes!
 }

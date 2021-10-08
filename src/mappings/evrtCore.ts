@@ -4,7 +4,7 @@ import { EVRTCharger } from '../../generated/EVRTCharger/EVRTCharger'
 import { StakingRewards } from '../../generated/StakingRewards/StakingRewards'
 import { ERC20 } from '../../generated/StakingRewards/ERC20'
 
-import { Account, AccountBalance, AccountBalanceSnapshot, Token, StakingRewardsToken, Delegate } from '../../generated/schema'
+import { Account, AccountBalance, AccountBalanceSnapshot, Token, Pool, Delegate } from '../../generated/schema'
 
 import { toDecimal, ZERO } from '../helpers/numbers'
 
@@ -121,26 +121,30 @@ export function getOrCreateERC20Token(event: ethereum.Event, address: Address): 
   return token as Token
 }
 
-export function getOrCreateStakingRewardToken(event: ethereum.Event, address: Address): StakingRewardsToken {
+export function getOrCreatePool(event: ethereum.Event, address: Address): Pool {
   let addressHex = address.toHexString()
-  let token = StakingRewardsToken.load(addressHex)
+  let token = Pool.load(addressHex)
   if (token != null) {
-      return token as StakingRewardsToken
+      return token as Pool
   }
 
-  token = new StakingRewardsToken(addressHex)
+  token = new Pool(addressHex)
   token.address = address
   let tokenInstance = StakingRewards.bind(address)
-  token.rewardToken = getOrCreateERC20Token(event, tokenInstance.rewardsToken()).id
-  token.stakeToken = getOrCreateERC20Token(event, tokenInstance.stakingToken()).id
+  let rewardToken = getOrCreateERC20Token(event, tokenInstance.rewardsToken())
+  let stakeToken = getOrCreateERC20Token(event, tokenInstance.stakingToken())
+  token.rewardTokenAddress = rewardToken.address
+  token.rewardToken = rewardToken.id
+  token.stakeTokenAddress = stakeToken.address
+  token.stakeToken = stakeToken.id
   let initialSupply = tokenInstance.try_totalSupply()
-  token.totalSupply = initialSupply.reverted ? ZERO : initialSupply.value
-  token.totalRewardPaid = ZERO
-  token.totalRewardAdded = ZERO
-  token.totalStaked = ZERO
-  token.totalWithdrawn = ZERO
+  token.totalSupply = initialSupply.reverted ? ZERO.toBigDecimal() : initialSupply.value.toBigDecimal()
+  token.totalRewardPaid = ZERO.toBigDecimal()
+  token.totalRewardAdded = ZERO.toBigDecimal()
+  token.totalStaked = ZERO.toBigDecimal()
+  token.totalWithdrawn = ZERO.toBigDecimal()
   token.save()
-  return token as StakingRewardsToken
+  return token as Pool
 }
 
 export function getOrCreateAccount(accountAddress: Bytes): Account {
