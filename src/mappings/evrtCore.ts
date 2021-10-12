@@ -4,7 +4,7 @@ import { EVRTCharger } from '../../generated/EVRTCharger/EVRTCharger'
 import { StakingRewards } from '../../generated/StakingRewards/StakingRewards'
 import { ERC20 } from '../../generated/StakingRewards/ERC20'
 
-import { Account, AccountBalance, AccountBalanceSnapshot, Token, Pool, Delegate } from '../../generated/schema'
+import { Account, AccountBalance, AccountBalanceSnapshot, Token, Pool, Delegate, Vault } from '../../generated/schema'
 
 import { toDecimal, ZERO } from '../helpers/numbers'
 
@@ -84,7 +84,7 @@ export function getOrCreateToken1(event: ethereum.Event, address: Address): Toke
   return token as Token
 }
 
-export function getOrCreateERC20Token(event: ethereum.Event, address: Address): Token {
+export function getOrCreatePoolToken(event: ethereum.Event, address: Address): Token {
   let addressHex = address.toHexString()
   let token = Token.load(addressHex)
   if (token != null) {
@@ -117,36 +117,51 @@ export function getOrCreateERC20Token(event: ethereum.Event, address: Address): 
   token.totalMinted = ZERO.toBigDecimal()
   token.totalBurned = ZERO.toBigDecimal()
   token.totalTransferred = ZERO.toBigDecimal()
+  
   token.save()
   return token as Token
 }
 
 export function getOrCreatePool(event: ethereum.Event, address: Address): Pool {
   let addressHex = address.toHexString()
-  let token = Pool.load(addressHex)
-  if (token != null) {
-      return token as Pool
+  let pool = Pool.load(addressHex)
+  if (pool != null) {
+      return pool as Pool
   }
 
-  token = new Pool(addressHex)
-  token.address = address
+  pool = new Pool(addressHex)
+  pool.address = address as Bytes
   let tokenInstance = StakingRewards.bind(address)
-  let rewardToken = getOrCreateERC20Token(event, tokenInstance.rewardsToken())
-  let stakeToken = getOrCreateERC20Token(event, tokenInstance.stakingToken())
-  token.rewardTokenAddress = rewardToken.address
-  token.rewardToken = rewardToken.id
-  token.stakeTokenAddress = stakeToken.address
-  token.stakeToken = stakeToken.id
-  let initialSupply = tokenInstance.try_totalSupply()
-  token.totalSupply = initialSupply.reverted ? ZERO.toBigDecimal() : initialSupply.value.toBigDecimal()
-  token.totalRewardPaid = ZERO.toBigDecimal()
-  token.totalRewardAdded = ZERO.toBigDecimal()
-  token.totalStaked = ZERO.toBigDecimal()
-  token.totalWithdrawn = ZERO.toBigDecimal()
-  token.save()
-  return token as Pool
+  let rewardToken = getOrCreatePoolToken(event, tokenInstance.rewardsToken())
+  let stakeToken = getOrCreatePoolToken(event, tokenInstance.stakingToken())
+  pool.rewardTokenAddress = rewardToken.address
+  pool.rewardToken = rewardToken.id
+  pool.stakeTokenAddress = stakeToken.address
+  pool.stakeToken = stakeToken.id
+  pool.totalRewardPaid = ZERO.toBigDecimal()
+  pool.totalRewardAdded = ZERO.toBigDecimal()
+  pool.totalStaked = ZERO.toBigDecimal()
+  pool.totalWithdrawn = ZERO.toBigDecimal()
+  pool.save()
+  return pool as Pool
 }
 
+
+export function getOrCreateVault(vaultAddress: Bytes): Vault {
+  let vaultId = vaultAddress.toHexString()
+  let vault = Vault.load(vaultId)
+
+  if (vault != null) {
+    return vault as Vault
+  }
+
+  vault = new Vault(vaultId)
+  vault.address = vaultAddress
+  vault.balance = ZERO.toBigDecimal()
+  vault.save()
+
+  return vault as Vault
+}
 export function getOrCreateAccount(accountAddress: Bytes): Account {
   let accountId = accountAddress.toHexString()
   let existingAccount = Account.load(accountId)

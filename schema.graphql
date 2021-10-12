@@ -145,16 +145,22 @@ type DailyRewardReceived @entity {
 type Enter @entity {
   id: ID! #<transaction hash>
   account: Account!
-  vault: Bytes!
+  vault: Vault!
   amount: BigDecimal!
   timestamp: BigInt!
   transaction: Bytes!
 }
 
+type Vault @entity {
+  id: ID!
+  address: Bytes!
+  balance: BigDecimal!
+}
+
 type Leave @entity {
   id: ID! #<transaction hash>
   account: Account!
-  vault: Bytes!
+  vault: Vault!
   amount: BigDecimal!
   shares: BigDecimal!
   timestamp: BigInt!
@@ -176,11 +182,17 @@ type Pool @entity {
   stakeTokenAddress: Bytes!
   rewardToken: Token!
   stakeToken: Token!
-  totalSupply: BigDecimal!
   totalStaked: BigDecimal!
   totalWithdrawn: BigDecimal!
   totalRewardAdded: BigDecimal!
   totalRewardPaid: BigDecimal!
+}
+
+type AccountLiquidity @entity {
+  id: ID! # {pairAddress}{accoutnAddress}
+  pool: Pool!
+  account: Account!
+  balance: BigDecimal!
 }
 
 type RewardAdded @entity {

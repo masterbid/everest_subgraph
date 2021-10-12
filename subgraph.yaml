@@ -55,6 +55,7 @@ dataSources:
         - DelegateVote
         - DelegateChange
         - DailyRewardsReceived
+        - Vault
         - Enter
         - Leave
       abis:
@@ -92,6 +93,7 @@ dataSources:
       entities:
         - ApprovalEvent
         - Account
+        - AccountLiquidity
         - AccountBalance
         - AccountBalanceSnapshot
         - Token

@@ -1,4 +1,4 @@
-import { Address, BigDecimal, Bytes, ethereum } from "@graphprotocol/graph-ts"
+import { Address, BigInt, BigDecimal, Bytes, ethereum } from "@graphprotocol/graph-ts"
 import {
   StakingRewards,
   Recovered,
@@ -15,7 +15,9 @@ import {
   RewardPaid as RewardPaidEntity,
   RewardsDurationUpdated as RewardsDurationUpdatedEntity,
   Staked as StakedEntity,
-  Withdrawn as WithdrawnEntity
+  Withdrawn as WithdrawnEntity,
+  Pool,
+  AccountLiquidity
  } from "../../generated/schema"
 
  import {
@@ -23,16 +25,28 @@ import {
   getOrCreateAccount,
   getOrCreatePool,
   increaseAccountBalance,
-  saveAccountBalanceSnapshot,
-  GENESIS_ADDRESS,
-  getOrCreateERC20Token
+  getOrCreatePoolToken
 } from "./evrtCore"
 
 import { toDecimal, ONE } from '../helpers/numbers'
 
+function getOrCreateLiquidity(pool: Pool, accountAddress: Address): AccountLiquidity {
+    let id = pool.id.concat("-").concat(accountAddress.toHexString())
+    let liquidity = AccountLiquidity.load(id)
+    if (liquidity != null) {
+      return liquidity as AccountLiquidity
+    }
+    liquidity = new AccountLiquidity(id)
+    liquidity.pool = pool.id
+    liquidity.account = getOrCreateAccount(accountAddress).id
+    liquidity.balance = BigInt.fromI32(0).toBigDecimal()
+    liquidity.save()
+    return liquidity as AccountLiquidity
+  }
+
 export function handleRecovered(event: Recovered): void {
     let id = event.transaction.hash.toHexString()
-    let token = getOrCreateERC20Token(event, event.params.token) 
+    let token = getOrCreatePoolToken(event, event.params.token) 
     let amount = event.params.amount.toBigDecimal()
 
     let recovered = RecoveredEntity.load(id)
@@ -69,18 +83,18 @@ export function handleRewardAdded(event: RewardAdded): void {
 export function handleRewardPaid(event: RewardPaid): void {
     let id = event.transaction.hash.toHexString()
     let reward = event.params.reward.toBigDecimal()
-    let token = getOrCreatePool(event, event.address)
-    token.totalRewardPaid = token.totalRewardPaid.plus(reward)
+    let pool = getOrCreatePool(event, event.address)
+    pool.totalRewardPaid = pool.totalRewardPaid.plus(reward)
     let user = getOrCreateAccount(event.params.user)
 
-    let accountBalance = increaseAccountBalance(user, getOrCreateERC20Token(event, token.stakeTokenAddress as Address), reward)
+    let accountBalance = increaseAccountBalance(user, getOrCreatePoolToken(event, pool.stakeTokenAddress as Address), reward)
     accountBalance.block = event.block.number
     accountBalance.modified = event.block.timestamp
     accountBalance.transaction = event.transaction.hash
 
     accountBalance.save()
 
-    let rewardToken = token.rewardToken
+    let rewardToken = pool.rewardToken
     let rewardPaid = RewardPaidEntity.load(id)
     if(rewardPaid == null) {
         rewardPaid = new RewardPaidEntity(id)
@@ -90,7 +104,7 @@ export function handleRewardPaid(event: RewardPaid): void {
         rewardPaid.timestamp = event.block.timestamp
         rewardPaid.transaction = event.transaction.hash
 
-        token.save()
+        pool.save()
         user.save()
         rewardPaid.save()
 
@@ -118,29 +132,25 @@ export function handleRewardsdurationUpdated(event: RewardsDurationUpdated): voi
 
 export function handleStaked(event: Staked): void {
     let id = event.transaction.hash.toHexString()
-    let token = getOrCreatePool(event, event.address)
-    let amount = event.params.amount.toBigDecimal()
-    token.totalStaked = token.totalStaked.plus(amount)
-    token.totalSupply = token.totalSupply.plus(amount)
+    let pool = getOrCreatePool(event, event.address)
+    let token = getOrCreatePoolToken(event, pool.stakeTokenAddress as Address)
+    let amount = toDecimal(event.params.amount, token.decimals) 
+    pool.totalStaked = pool.totalStaked.plus(amount)
     let user = getOrCreateAccount(event.params.user)
-
-    let accountBalance = decreaseAccountBalance(user, getOrCreateERC20Token(event, token.stakeTokenAddress as Address), amount)
-    accountBalance.block = event.block.number
-    accountBalance.modified = event.block.timestamp
-    accountBalance.transaction = event.transaction.hash
-
-    accountBalance.save()
+    let accountLiquidity = getOrCreateLiquidity(pool, event.params.user)
+    accountLiquidity.balance = accountLiquidity.balance.plus(amount)
 
     let staked = StakedEntity.load(id)
     if(staked == null) {
         staked = new StakedEntity(id)
         staked.user = user.id
         staked.amount = amount
-        staked.stakedToken = token.stakeToken
+        staked.stakedToken = pool.stakeToken
         staked.timestamp = event.block.timestamp
         staked.transaction = event.transaction.hash
 
-        token.save()
+        pool.save()
+        accountLiquidity.save()
         user.save()
         staked.save()
     }
@@ -148,29 +158,27 @@ export function handleStaked(event: Staked): void {
 
 export function handleWithdrawn(event: Withdrawn): void {
     let id = event.transaction.hash.toHexString()
-    let token = getOrCreatePool(event, event.address)
-    let amount = event.params.amount.toBigDecimal()
-    token.totalWithdrawn = token.totalWithdrawn.plus(amount)
-    token.totalSupply = token.totalSupply.minus(amount)
+    let pool = getOrCreatePool(event, event.address)
+    let token = getOrCreatePoolToken(event, pool.stakeTokenAddress as Address)
+    let amount = toDecimal(event.params.amount, token.decimals)
+    pool.totalStaked = pool.totalStaked.minus(amount)
+    pool.totalWithdrawn = pool.totalWithdrawn.plus(amount)
     let user = getOrCreateAccount(event.params.user)
 
-    let accountBalance = increaseAccountBalance(user, getOrCreateERC20Token(event, token.stakeTokenAddress as Address), amount)
-    accountBalance.block = event.block.number
-    accountBalance.modified = event.block.timestamp
-    accountBalance.transaction = event.transaction.hash
-
-    accountBalance.save()
+    let accountLiquidity = getOrCreateLiquidity(pool, event.params.user)
+    accountLiquidity.balance = accountLiquidity.balance.minus(amount)
 
     let withdraw = WithdrawnEntity.load(id)
     if(withdraw == null) {
         withdraw = new WithdrawnEntity(id)
         withdraw.user = user.id
         withdraw.amount = amount
-        withdraw.withdrawnToken = token.stakeToken
+        withdraw.withdrawnToken = pool.stakeToken
         withdraw.timestamp = event.block.timestamp
         withdraw.transaction = event.transaction.hash
 
-        token.save()
+        pool.save()
+        accountLiquidity.save()
         user.save()
         withdraw.save()
     }

@@ -28,6 +28,7 @@ import {
   decreaseAccountBalance,
   getOrCreateAccount,
   getOrCreateToken,
+  getOrCreateVault,
   getOrCreateToken1,
   increaseAccountBalance,
   saveAccountBalanceSnapshot,
@@ -161,20 +162,23 @@ export function handleDelegateVotesChanged(event: DelegateVotesChanged): void {
 export function handleEnter(event: Enter): void {
   let token = getOrCreateToken1(event, event.address)
   let id = event.transaction.hash.toHexString()
-  let vault = event.params.penguin
   let amount = toDecimal(event.params.amount, token.decimals)
-  let account = getOrCreateAccount(event.transaction.from)
-  account.save()
-
+  let vaultAddress = event.address
+  let vault = getOrCreateVault(vaultAddress)
+  vault.balance = vault.balance.plus(amount)
+  let account = getOrCreateAccount(event.params.penguin)
+  
   let enter = enterEntity.load(id)
   if(enter == null) {
     enter = new enterEntity(id)
     enter.account = account.id
-    enter.vault = vault
+    enter.vault = vault.id
     enter.amount = amount
     enter.timestamp = event.block.timestamp
     enter.transaction = event.transaction.hash
-
+    
+    vault.save()
+    account.save()
     enter.save()
   }
 }
@@ -182,22 +186,25 @@ export function handleEnter(event: Enter): void {
 export function handleLeave(event: Leave): void {
   let token = getOrCreateToken1(event, event.address)
   let id = event.transaction.hash.toHexString()
-  let vault = event.params.penguin
   let amount = toDecimal(event.params.amount, token.decimals)
+  let vaultAddress = event.address
+  let vault = getOrCreateVault(vaultAddress)
+  vault.balance = vault.balance.minus(amount)
   let shares = toDecimal(event.params.shares, token.decimals)
   let account = getOrCreateAccount(event.transaction.from)
-  account.save()
-
+  
   let leave = leaveEntity.load(id)
   if(leave == null) {
     leave = new leaveEntity(id)
     leave.account = account.id
-    leave.vault = vault
+    leave.vault = vault.id
     leave.amount = amount
     leave.shares = shares
     leave.timestamp = event.block.timestamp
     leave.transaction = event.transaction.hash
-
+    
+    vault.save()
+    account.save()
     leave.save()
   }
 }
