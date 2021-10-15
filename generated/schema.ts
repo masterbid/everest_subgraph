@@ -122,6 +122,33 @@ export class Account extends Entity {
     this.set("burns", Value.fromStringArray(value));
   }
 
+  get pEVRTStake(): Array<string> {
+    let value = this.get("pEVRTStake");
+    return value.toStringArray();
+  }
+
+  set pEVRTStake(value: Array<string>) {
+    this.set("pEVRTStake", Value.fromStringArray(value));
+  }
+
+  get pEVRTUnstake(): Array<string> {
+    let value = this.get("pEVRTUnstake");
+    return value.toStringArray();
+  }
+
+  set pEVRTUnstake(value: Array<string>) {
+    this.set("pEVRTUnstake", Value.fromStringArray(value));
+  }
+
+  get pEVRTDailyReward(): Array<string> {
+    let value = this.get("pEVRTDailyReward");
+    return value.toStringArray();
+  }
+
+  set pEVRTDailyReward(value: Array<string>) {
+    this.set("pEVRTDailyReward", Value.fromStringArray(value));
+  }
+
   get poolStake(): Array<string> {
     let value = this.get("poolStake");
     return value.toStringArray();
@@ -1587,6 +1614,23 @@ export class Pool extends Entity {
     this.set("stakeToken", Value.fromString(value));
   }
 
+  get pairToken(): string | null {
+    let value = this.get("pairToken");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set pairToken(value: string | null) {
+    if (value === null) {
+      this.unset("pairToken");
+    } else {
+      this.set("pairToken", Value.fromString(value as string));
+    }
+  }
+
   get totalStaked(): BigDecimal {
     let value = this.get("totalStaked");
     return value.toBigDecimal();
@@ -1621,6 +1665,118 @@ export class Pool extends Entity {
 
   set totalRewardPaid(value: BigDecimal) {
     this.set("totalRewardPaid", Value.fromBigDecimal(value));
+  }
+}
+
+export class PairToken extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save PairToken entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save PairToken entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("PairToken", id.toString(), this);
+  }
+
+  static load(id: string): PairToken | null {
+    return store.get("PairToken", id) as PairToken | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get address(): Bytes {
+    let value = this.get("address");
+    return value.toBytes();
+  }
+
+  set address(value: Bytes) {
+    this.set("address", Value.fromBytes(value));
+  }
+
+  get poolAddress(): Bytes {
+    let value = this.get("poolAddress");
+    return value.toBytes();
+  }
+
+  set poolAddress(value: Bytes) {
+    this.set("poolAddress", Value.fromBytes(value));
+  }
+
+  get pool(): string {
+    let value = this.get("pool");
+    return value.toString();
+  }
+
+  set pool(value: string) {
+    this.set("pool", Value.fromString(value));
+  }
+
+  get token0Address(): Bytes {
+    let value = this.get("token0Address");
+    return value.toBytes();
+  }
+
+  set token0Address(value: Bytes) {
+    this.set("token0Address", Value.fromBytes(value));
+  }
+
+  get token1Address(): Bytes {
+    let value = this.get("token1Address");
+    return value.toBytes();
+  }
+
+  set token1Address(value: Bytes) {
+    this.set("token1Address", Value.fromBytes(value));
+  }
+
+  get token0(): string {
+    let value = this.get("token0");
+    return value.toString();
+  }
+
+  set token0(value: string) {
+    this.set("token0", Value.fromString(value));
+  }
+
+  get token1(): string {
+    let value = this.get("token1");
+    return value.toString();
+  }
+
+  set token1(value: string) {
+    this.set("token1", Value.fromString(value));
+  }
+
+  get token0liquidity(): BigDecimal {
+    let value = this.get("token0liquidity");
+    return value.toBigDecimal();
+  }
+
+  set token0liquidity(value: BigDecimal) {
+    this.set("token0liquidity", Value.fromBigDecimal(value));
+  }
+
+  get token1liquidity(): BigDecimal {
+    let value = this.get("token1liquidity");
+    return value.toBigDecimal();
+  }
+
+  set token1liquidity(value: BigDecimal) {
+    this.set("token1liquidity", Value.fromBigDecimal(value));
   }
 }
 

@@ -8,6 +8,9 @@ import {
   Staked,
   Withdrawn
 } from "../../generated/StakingRewards/StakingRewards"
+import { Sync as LydiaSync } from "../../generated/LydiaPair/LydiaPair"
+import { Sync as JoeSync } from "../../generated/JoePair/JoePair"
+import { Sync as PGLSync } from "../../generated/PangolinPair/PangolinPair"
 
 import { 
   Recovered as RecoveredEntity,
@@ -17,15 +20,24 @@ import {
   Staked as StakedEntity,
   Withdrawn as WithdrawnEntity,
   Pool,
-  AccountLiquidity
+  AccountLiquidity,
+  PairToken
  } from "../../generated/schema"
 
  import {
   decreaseAccountBalance,
   getOrCreateAccount,
-  getOrCreatePool,
+  getOrCreateStakingPool,
   increaseAccountBalance,
-  getOrCreatePoolToken
+  getOrCreatePoolToken,
+  getOrCreateLydiaPair,
+  getOrCreateJoePair,
+  getOrCreatePangolinPair,
+  LYDIA_LP_ADDRESS,
+  LYDIA_LP_ADDRESS1,
+  JOE_LP_ADDRESS,
+  PGL_ADDRESS,
+  sync
 } from "./evrtCore"
 
 import { toDecimal, ONE } from '../helpers/numbers'
@@ -64,7 +76,7 @@ export function handleRecovered(event: Recovered): void {
 export function handleRewardAdded(event: RewardAdded): void {
     let id = event.transaction.hash.toHexString()
     let reward = event.params.reward.toBigDecimal()
-    let rewardToken = getOrCreatePool(event, event.address)
+    let rewardToken = getOrCreateStakingPool(event, event.address)
     rewardToken.totalRewardAdded = rewardToken.totalRewardAdded.plus(reward)
     
     let rewardAdded = RewardAddedEntity.load(id)
@@ -83,7 +95,7 @@ export function handleRewardAdded(event: RewardAdded): void {
 export function handleRewardPaid(event: RewardPaid): void {
     let id = event.transaction.hash.toHexString()
     let reward = event.params.reward.toBigDecimal()
-    let pool = getOrCreatePool(event, event.address)
+    let pool = getOrCreateStakingPool(event, event.address)
     pool.totalRewardPaid = pool.totalRewardPaid.plus(reward)
     let user = getOrCreateAccount(event.params.user)
 
@@ -132,10 +144,17 @@ export function handleRewardsdurationUpdated(event: RewardsDurationUpdated): voi
 
 export function handleStaked(event: Staked): void {
     let id = event.transaction.hash.toHexString()
-    let pool = getOrCreatePool(event, event.address)
+    let pool = getOrCreateStakingPool(event, event.address)
     let token = getOrCreatePoolToken(event, pool.stakeTokenAddress as Address)
     let amount = toDecimal(event.params.amount, token.decimals) 
     pool.totalStaked = pool.totalStaked.plus(amount)
+    if(pool.stakeTokenAddress == Address.fromString(LYDIA_LP_ADDRESS) || pool.stakeTokenAddress == Address.fromString(LYDIA_LP_ADDRESS1)) {
+        pool.pairToken = getOrCreateLydiaPair(event, pool.address as Address, pool.stakeTokenAddress as Address).id
+    } else if(pool.stakeTokenAddress == Address.fromString(JOE_LP_ADDRESS)) {
+        pool.pairToken = getOrCreateJoePair(event, pool.address as Address, pool.stakeTokenAddress as Address).id
+    } else if(pool.stakeTokenAddress == Address.fromString(PGL_ADDRESS)) {
+        pool.pairToken = getOrCreatePangolinPair(event, pool.address as Address, pool.stakeTokenAddress as Address).id
+    }
     let user = getOrCreateAccount(event.params.user)
     let accountLiquidity = getOrCreateLiquidity(pool, event.params.user)
     accountLiquidity.balance = accountLiquidity.balance.plus(amount)
@@ -158,7 +177,7 @@ export function handleStaked(event: Staked): void {
 
 export function handleWithdrawn(event: Withdrawn): void {
     let id = event.transaction.hash.toHexString()
-    let pool = getOrCreatePool(event, event.address)
+    let pool = getOrCreateStakingPool(event, event.address)
     let token = getOrCreatePoolToken(event, pool.stakeTokenAddress as Address)
     let amount = toDecimal(event.params.amount, token.decimals)
     pool.totalStaked = pool.totalStaked.minus(amount)
@@ -182,4 +201,14 @@ export function handleWithdrawn(event: Withdrawn): void {
         user.save()
         withdraw.save()
     }
+}
+
+export function handleLydiaSync(event: LydiaSync): void {
+    sync(event, event.params.reserve0, event.params.reserve1)
+}
+export function handleJoeSync(event: JoeSync): void {
+    sync(event, event.params.reserve0, event.params.reserve1)
+}
+export function handlePGLSync(event: PGLSync): void {
+    sync(event, event.params.reserve0, event.params.reserve1)
 }

@@ -107,6 +107,10 @@ dataSources:
       abis:
         - name: StakingRewards
           file: EVRT\AVAX\abis\StakingRewards.json
+        - name: EverestToken
+          file: EVRT\AVAX\abis\EverestToken.json
+        - name: LydiaPair
+          file: EVRT\AVAX\abis\LydiaPair.json
         - name: ERC20
           file: EVRT\AVAX\abis\IERC20.json
       eventHandlers:
@@ -150,6 +154,10 @@ dataSources:
       abis:
         - name: StakingRewards
           file: LYD\AVAX\abis\StakingRewards.json
+        - name: EverestToken
+          file: LYD\AVAX\abis\EverestToken.json
+        - name: LydiaPair
+          file: LYD\AVAX\abis\LydiaPair.json
         - name: ERC20
           file: LYD\AVAX\abis\IERC20.json
       eventHandlers:
@@ -193,6 +201,10 @@ dataSources:
       abis:
         - name: StakingRewards
           file: EVRT\AVAXJLP\abis\StakingRewards.json
+        - name: EverestToken
+          file: EVRT\AVAXJLP\abis\EverestToken.json
+        - name: JoePair
+          file: EVRT\AVAXJLP\abis\JoePair.json
         - name: ERC20
           file: EVRT\AVAXJLP\abis\IERC20.json
       eventHandlers:
@@ -236,6 +248,10 @@ dataSources:
       abis:
         - name: StakingRewards
           file: EVRT\AVAXPGL\abis\StakingRewards.json
+        - name: EverestToken
+          file: EVRT\AVAXPGL\abis\EverestToken.json
+        - name: PangolinPair
+          file: EVRT\AVAXPGL\abis\PangolinPair.json
         - name: ERC20
           file: EVRT\AVAXPGL\abis\IERC20.json
       eventHandlers:
@@ -251,4 +267,112 @@ dataSources:
           handler: handleStaked
         - event: Withdrawn(indexed address,uint256)
           handler: handleWithdrawn
+      file: EVRT\AVAX\EVRT\AVAX.wasm
+  - kind: ethereum/contract
+    name: LydiaPair1
+    network: avalanche
+    source:
+      address: "0x3B4656d0e149686faD8D1568898BEed1e2d16998"
+      abi: LydiaPair
+      startBlock: 4754584
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - PairToken
+        - Token
+      abis:
+        - name: StakingRewards
+          file: LydiaPair1\abis\StakingRewards.json
+        - name: EverestToken
+          file: LydiaPair1\abis\EverestToken.json
+        - name: LydiaPair
+          file: LydiaPair1\abis\LydiaPair.json
+        - name: ERC20
+          file: LydiaPair1\abis\IERC20.json
+      eventHandlers:
+        - event: Sync(uint112,uint112)
+          handler: handleLydiaSync
+      file: EVRT\AVAX\EVRT\AVAX.wasm
+  - kind: ethereum/contract
+    name: LydiaPair2
+    network: avalanche
+    source:
+      address: "0x26bbBf5104F99Dd1d6e61fF54980E78edcb0ba29"
+      abi: LydiaPair
+      startBlock: 4753681
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - PairToken
+        - Token
+      abis:
+        - name: StakingRewards
+          file: LydiaPair2\abis\StakingRewards.json
+        - name: EverestToken
+          file: LydiaPair2\abis\EverestToken.json
+        - name: LydiaPair
+          file: LydiaPair2\abis\LydiaPair.json
+        - name: ERC20
+          file: LydiaPair2\abis\IERC20.json
+      eventHandlers:
+        - event: Sync(uint112,uint112)
+          handler: handleLydiaSync
+      file: EVRT\AVAX\EVRT\AVAX.wasm
+  - kind: ethereum/contract
+    name: JoePair
+    network: avalanche
+    source:
+      address: "0xFDA31e6C2Bae47f9e7bd9f42933AcE1D28fF537b"
+      abi: JoePair
+      startBlock: 4754547
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - PairToken
+        - Token
+      abis:
+        - name: StakingRewards
+          file: JoePair\abis\StakingRewards.json
+        - name: EverestToken
+          file: JoePair\abis\EverestToken.json
+        - name: JoePair
+          file: JoePair\abis\JoePair.json
+        - name: ERC20
+          file: JoePair\abis\IERC20.json
+      eventHandlers:
+        - event: Sync(uint112,uint112)
+          handler: handleJoeSync
+      file: EVRT\AVAX\EVRT\AVAX.wasm
+  - kind: ethereum/contract
+    name: PangolinPair
+    network: avalanche
+    source:
+      address: "0x7eCe5fc08050F8007188897C578483Aabd953Bc2"
+      abi: PangolinPair
+      startBlock: 4753898
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - PairToken
+        - Token
+      abis:
+        - name: StakingRewards
+          file: PangolinPair\abis\StakingRewards.json
+        - name: EverestToken
+          file: PangolinPair\abis\EverestToken.json
+        - name: PangolinPair
+          file: PangolinPair\abis\PangolinPair.json
+        - name: ERC20
+          file: PangolinPair\abis\IERC20.json
+      eventHandlers:
+        - event: Sync(uint112,uint112)
+          handler: handlePGLSync
       file: EVRT\AVAX\EVRT\AVAX.wasm

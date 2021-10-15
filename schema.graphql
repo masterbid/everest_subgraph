@@ -9,6 +9,9 @@ type Account @entity {
   approvals: [ApprovalEvent!]! @derivedFrom(field: "owner")
   mintsReceived: [MintEvent!]! @derivedFrom(field: "destination")
   burns: [BurnEvent!]! @derivedFrom(field: "sender")
+  pEVRTStake: [Enter!]! @derivedFrom(field: "account")
+  pEVRTUnstake: [Leave!]! @derivedFrom(field: "account")
+  pEVRTDailyReward: [DailyRewardReceived!]! @derivedFrom(field: "account")
   poolStake: [Staked!]! @derivedFrom(field: "user")
   poolWithdrawal: [Withdrawn!]! @derivedFrom(field: "user")
   poolReward: [RewardPaid!]! @derivedFrom(field: "user")
@@ -182,14 +185,29 @@ type Pool @entity {
   stakeTokenAddress: Bytes!
   rewardToken: Token!
   stakeToken: Token!
+  pairToken: PairToken
   totalStaked: BigDecimal!
   totalWithdrawn: BigDecimal!
   totalRewardAdded: BigDecimal!
   totalRewardPaid: BigDecimal!
 }
 
+type PairToken @entity {
+  id: ID!
+  address: Bytes!
+  poolAddress: Bytes!
+  pool: Pool!
+  token0Address: Bytes!
+  token1Address: Bytes!
+  token0: Token!
+  token1: Token!
+  token0liquidity: BigDecimal!
+  token1liquidity: BigDecimal!
+  
+}
+
 type AccountLiquidity @entity {
-  id: ID! # {pairAddress}{accoutnAddress}
+  id: ID! # {poolAddress}{accoutnAddress}
   pool: Pool!
   account: Account!
   balance: BigDecimal!
