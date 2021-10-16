@@ -1761,22 +1761,65 @@ export class PairToken extends Entity {
     this.set("token1", Value.fromString(value));
   }
 
-  get token0liquidity(): BigDecimal {
-    let value = this.get("token0liquidity");
+  get token0Price(): BigDecimal | null {
+    let value = this.get("token0Price");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set token0Price(value: BigDecimal | null) {
+    if (value === null) {
+      this.unset("token0Price");
+    } else {
+      this.set("token0Price", Value.fromBigDecimal(value as BigDecimal));
+    }
+  }
+
+  get token1Price(): BigDecimal | null {
+    let value = this.get("token1Price");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set token1Price(value: BigDecimal | null) {
+    if (value === null) {
+      this.unset("token1Price");
+    } else {
+      this.set("token1Price", Value.fromBigDecimal(value as BigDecimal));
+    }
+  }
+
+  get token0Locked(): BigDecimal {
+    let value = this.get("token0Locked");
     return value.toBigDecimal();
   }
 
-  set token0liquidity(value: BigDecimal) {
-    this.set("token0liquidity", Value.fromBigDecimal(value));
+  set token0Locked(value: BigDecimal) {
+    this.set("token0Locked", Value.fromBigDecimal(value));
   }
 
-  get token1liquidity(): BigDecimal {
-    let value = this.get("token1liquidity");
+  get token1Locked(): BigDecimal {
+    let value = this.get("token1Locked");
     return value.toBigDecimal();
   }
 
-  set token1liquidity(value: BigDecimal) {
-    this.set("token1liquidity", Value.fromBigDecimal(value));
+  set token1Locked(value: BigDecimal) {
+    this.set("token1Locked", Value.fromBigDecimal(value));
+  }
+
+  get totalLiquidityInAVAX(): BigDecimal {
+    let value = this.get("totalLiquidityInAVAX");
+    return value.toBigDecimal();
+  }
+
+  set totalLiquidityInAVAX(value: BigDecimal) {
+    this.set("totalLiquidityInAVAX", Value.fromBigDecimal(value));
   }
 }
 
