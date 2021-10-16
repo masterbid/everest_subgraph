@@ -1666,6 +1666,24 @@ export class Pool extends Entity {
   set totalRewardPaid(value: BigDecimal) {
     this.set("totalRewardPaid", Value.fromBigDecimal(value));
   }
+
+  get totalStakedInAVAX(): BigDecimal {
+    let value = this.get("totalStakedInAVAX");
+    return value.toBigDecimal();
+  }
+
+  set totalStakedInAVAX(value: BigDecimal) {
+    this.set("totalStakedInAVAX", Value.fromBigDecimal(value));
+  }
+
+  get totalStakedInUSD(): BigDecimal {
+    let value = this.get("totalStakedInUSD");
+    return value.toBigDecimal();
+  }
+
+  set totalStakedInUSD(value: BigDecimal) {
+    this.set("totalStakedInUSD", Value.fromBigDecimal(value));
+  }
 }
 
 export class PairToken extends Entity {
@@ -1707,22 +1725,38 @@ export class PairToken extends Entity {
     this.set("address", Value.fromBytes(value));
   }
 
-  get poolAddress(): Bytes {
+  get poolAddress(): Bytes | null {
     let value = this.get("poolAddress");
-    return value.toBytes();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
   }
 
-  set poolAddress(value: Bytes) {
-    this.set("poolAddress", Value.fromBytes(value));
+  set poolAddress(value: Bytes | null) {
+    if (value === null) {
+      this.unset("poolAddress");
+    } else {
+      this.set("poolAddress", Value.fromBytes(value as Bytes));
+    }
   }
 
-  get pool(): string {
+  get pool(): string | null {
     let value = this.get("pool");
-    return value.toString();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set pool(value: string) {
-    this.set("pool", Value.fromString(value));
+  set pool(value: string | null) {
+    if (value === null) {
+      this.unset("pool");
+    } else {
+      this.set("pool", Value.fromString(value as string));
+    }
   }
 
   get token0Address(): Bytes {
@@ -1761,38 +1795,22 @@ export class PairToken extends Entity {
     this.set("token1", Value.fromString(value));
   }
 
-  get token0Price(): BigDecimal | null {
+  get token0Price(): BigDecimal {
     let value = this.get("token0Price");
-    if (value === null || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigDecimal();
-    }
+    return value.toBigDecimal();
   }
 
-  set token0Price(value: BigDecimal | null) {
-    if (value === null) {
-      this.unset("token0Price");
-    } else {
-      this.set("token0Price", Value.fromBigDecimal(value as BigDecimal));
-    }
+  set token0Price(value: BigDecimal) {
+    this.set("token0Price", Value.fromBigDecimal(value));
   }
 
-  get token1Price(): BigDecimal | null {
+  get token1Price(): BigDecimal {
     let value = this.get("token1Price");
-    if (value === null || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigDecimal();
-    }
+    return value.toBigDecimal();
   }
 
-  set token1Price(value: BigDecimal | null) {
-    if (value === null) {
-      this.unset("token1Price");
-    } else {
-      this.set("token1Price", Value.fromBigDecimal(value as BigDecimal));
-    }
+  set token1Price(value: BigDecimal) {
+    this.set("token1Price", Value.fromBigDecimal(value));
   }
 
   get token0Locked(): BigDecimal {
@@ -1820,6 +1838,97 @@ export class PairToken extends Entity {
 
   set totalLiquidityInAVAX(value: BigDecimal) {
     this.set("totalLiquidityInAVAX", Value.fromBigDecimal(value));
+  }
+
+  get totalLiquidityInUSD(): BigDecimal {
+    let value = this.get("totalLiquidityInUSD");
+    return value.toBigDecimal();
+  }
+
+  set totalLiquidityInUSD(value: BigDecimal) {
+    this.set("totalLiquidityInUSD", Value.fromBigDecimal(value));
+  }
+}
+
+export class Bundle extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Bundle entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Bundle entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Bundle", id.toString(), this);
+  }
+
+  static load(id: string): Bundle | null {
+    return store.get("Bundle", id) as Bundle | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get AVAX_USDPrice(): BigDecimal | null {
+    let value = this.get("AVAX_USDPrice");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set AVAX_USDPrice(value: BigDecimal | null) {
+    if (value === null) {
+      this.unset("AVAX_USDPrice");
+    } else {
+      this.set("AVAX_USDPrice", Value.fromBigDecimal(value as BigDecimal));
+    }
+  }
+
+  get EVRT_AVAXPrice(): BigDecimal | null {
+    let value = this.get("EVRT_AVAXPrice");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set EVRT_AVAXPrice(value: BigDecimal | null) {
+    if (value === null) {
+      this.unset("EVRT_AVAXPrice");
+    } else {
+      this.set("EVRT_AVAXPrice", Value.fromBigDecimal(value as BigDecimal));
+    }
+  }
+
+  get LYD_EVRTPrice(): BigDecimal | null {
+    let value = this.get("LYD_EVRTPrice");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set LYD_EVRTPrice(value: BigDecimal | null) {
+    if (value === null) {
+      this.unset("LYD_EVRTPrice");
+    } else {
+      this.set("LYD_EVRTPrice", Value.fromBigDecimal(value as BigDecimal));
+    }
   }
 }
 

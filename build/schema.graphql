@@ -190,22 +190,34 @@ type Pool @entity {
   totalWithdrawn: BigDecimal!
   totalRewardAdded: BigDecimal!
   totalRewardPaid: BigDecimal!
+  totalStakedInAVAX: BigDecimal!
+  totalStakedInUSD: BigDecimal!
 }
 
 type PairToken @entity {
   id: ID!
   address: Bytes!
-  poolAddress: Bytes!
-  pool: Pool!
+  poolAddress: Bytes
+  pool: Pool
   token0Address: Bytes!
   token1Address: Bytes!
   token0: Token!
   token1: Token!
-  token0Price: BigDecimal
-  token1Price: BigDecimal
+  token0Price: BigDecimal!
+  token1Price: BigDecimal!
   token0Locked: BigDecimal!
   token1Locked: BigDecimal!
   totalLiquidityInAVAX: BigDecimal!
+  totalLiquidityInUSD: BigDecimal!
+}
+
+# stores for USD calculations
+type Bundle @entity {
+  id: ID!
+  AVAX_USDPrice: BigDecimal # price of AVAX in usd
+  EVRT_AVAXPrice: BigDecimal # price of EVRT in avax
+  LYD_EVRTPrice: BigDecimal # price of JOE in evrt
+
 }
 
 type AccountLiquidity @entity {

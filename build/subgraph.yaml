@@ -97,6 +97,7 @@ dataSources:
         - AccountBalance
         - AccountBalanceSnapshot
         - Token
+        - Bundle
         - Pool
         - Recovered
         - RewardAdded
@@ -145,6 +146,7 @@ dataSources:
         - AccountBalanceSnapshot
         - Token
         - Pool
+        - Bundle
         - Recovered
         - RewardAdded
         - RewardPaid
@@ -191,6 +193,7 @@ dataSources:
         - AccountBalance
         - AccountBalanceSnapshot
         - Token
+        - Bundle
         - Pool
         - Recovered
         - RewardAdded
@@ -238,6 +241,7 @@ dataSources:
         - AccountBalance
         - AccountBalanceSnapshot
         - Token
+        - Bundle
         - Pool
         - Recovered
         - RewardAdded
@@ -282,6 +286,7 @@ dataSources:
       entities:
         - PairToken
         - Token
+        - Bundle
       abis:
         - name: StakingRewards
           file: LydiaPair1\abis\StakingRewards.json
@@ -309,6 +314,7 @@ dataSources:
       entities:
         - PairToken
         - Token
+        - Bundle
       abis:
         - name: StakingRewards
           file: LydiaPair2\abis\StakingRewards.json
@@ -336,6 +342,7 @@ dataSources:
       entities:
         - PairToken
         - Token
+        - Bundle
       abis:
         - name: StakingRewards
           file: JoePair\abis\StakingRewards.json
@@ -350,7 +357,7 @@ dataSources:
           handler: handleJoeSync
       file: EVRT\AVAX\EVRT\AVAX.wasm
   - kind: ethereum/contract
-    name: PangolinPair
+    name: PangolinPair1
     network: avalanche
     source:
       address: "0x7eCe5fc08050F8007188897C578483Aabd953Bc2"
@@ -363,6 +370,36 @@ dataSources:
       entities:
         - PairToken
         - Token
+        - Bundle
+      abis:
+        - name: StakingRewards
+          file: PangolinPair1\abis\StakingRewards.json
+        - name: EverestToken
+          file: PangolinPair1\abis\EverestToken.json
+        - name: PangolinPair
+          file: PangolinPair1\abis\PangolinPair.json
+        - name: ERC20
+          file: PangolinPair1\abis\IERC20.json
+      eventHandlers:
+        - event: Sync(uint112,uint112)
+          handler: handlePGLSync
+      file: EVRT\AVAX\EVRT\AVAX.wasm
+  - kind: ethereum/contract
+    name: PangolinPair
+    network: avalanche
+    source:
+      address: "0x9ee0a4e21bd333a6bb2ab298194320b8daa26516"
+      abi: PangolinPair
+      startBlock: 4350000
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - PairToken
+        - Token
+        - Pool
+        - Bundle
       abis:
         - name: StakingRewards
           file: PangolinPair\abis\StakingRewards.json

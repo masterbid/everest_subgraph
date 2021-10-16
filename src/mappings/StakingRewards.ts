@@ -37,6 +37,7 @@ import {
   LYDIA_LP_ADDRESS1,
   JOE_LP_ADDRESS,
   PGL_ADDRESS,
+  AVAX_USDT,
   sync
 } from "./evrtCore"
 
@@ -149,11 +150,20 @@ export function handleStaked(event: Staked): void {
     let amount = toDecimal(event.params.amount, token.decimals) 
     pool.totalStaked = pool.totalStaked.plus(amount)
     if(pool.stakeTokenAddress == Address.fromString(LYDIA_LP_ADDRESS) || pool.stakeTokenAddress == Address.fromString(LYDIA_LP_ADDRESS1)) {
-        pool.pairToken = getOrCreateLydiaPair(event, pool.address as Address, pool.stakeTokenAddress as Address).id
+        let pairToken = getOrCreateLydiaPair(event, pool.address as Address, pool.stakeTokenAddress as Address)
+        pool.pairToken = pairToken.id
+        pool.totalStakedInAVAX = pairToken.totalLiquidityInAVAX
+        pool.totalStakedInUSD = pairToken.totalLiquidityInUSD
     } else if(pool.stakeTokenAddress == Address.fromString(JOE_LP_ADDRESS)) {
-        pool.pairToken = getOrCreateJoePair(event, pool.address as Address, pool.stakeTokenAddress as Address).id
+        let pairToken = getOrCreateJoePair(event, pool.address as Address, pool.stakeTokenAddress as Address)
+        pool.pairToken = pairToken.id
+        pool.totalStakedInAVAX = pairToken.totalLiquidityInAVAX
+        pool.totalStakedInUSD = pairToken.totalLiquidityInUSD
     } else if(pool.stakeTokenAddress == Address.fromString(PGL_ADDRESS)) {
-        pool.pairToken = getOrCreatePangolinPair(event, pool.address as Address, pool.stakeTokenAddress as Address).id
+        let pairToken = getOrCreatePangolinPair(event, pool.address as Address, pool.stakeTokenAddress as Address)
+        pool.pairToken = pairToken.id
+        pool.totalStakedInAVAX = pairToken.totalLiquidityInAVAX
+        pool.totalStakedInUSD = pairToken.totalLiquidityInUSD
     }
     let user = getOrCreateAccount(event.params.user)
     let accountLiquidity = getOrCreateLiquidity(pool, event.params.user)
@@ -181,6 +191,22 @@ export function handleWithdrawn(event: Withdrawn): void {
     let token = getOrCreatePoolToken(event, pool.stakeTokenAddress as Address)
     let amount = toDecimal(event.params.amount, token.decimals)
     pool.totalStaked = pool.totalStaked.minus(amount)
+    if(pool.stakeTokenAddress == Address.fromString(LYDIA_LP_ADDRESS) || pool.stakeTokenAddress == Address.fromString(LYDIA_LP_ADDRESS1)) {
+        let pairToken = getOrCreateLydiaPair(event, pool.address as Address, pool.stakeTokenAddress as Address)
+        pool.pairToken = pairToken.id
+        pool.totalStakedInAVAX = pairToken.totalLiquidityInAVAX
+        pool.totalStakedInUSD = pairToken.totalLiquidityInUSD
+    } else if(pool.stakeTokenAddress == Address.fromString(JOE_LP_ADDRESS)) {
+        let pairToken = getOrCreateJoePair(event, pool.address as Address, pool.stakeTokenAddress as Address)
+        pool.pairToken = pairToken.id
+        pool.totalStakedInAVAX = pairToken.totalLiquidityInAVAX
+        pool.totalStakedInUSD = pairToken.totalLiquidityInUSD
+    } else if(pool.stakeTokenAddress == Address.fromString(PGL_ADDRESS)) {
+        let pairToken = getOrCreatePangolinPair(event, pool.address as Address, pool.stakeTokenAddress as Address)
+        pool.pairToken = pairToken.id
+        pool.totalStakedInAVAX = pairToken.totalLiquidityInAVAX
+        pool.totalStakedInUSD = pairToken.totalLiquidityInUSD
+    }
     pool.totalWithdrawn = pool.totalWithdrawn.plus(amount)
     let user = getOrCreateAccount(event.params.user)
 
@@ -210,5 +236,10 @@ export function handleJoeSync(event: JoeSync): void {
     sync(event, event.params.reserve0, event.params.reserve1)
 }
 export function handlePGLSync(event: PGLSync): void {
+    let id = event.address.toHexString()
+    if(event.address == Address.fromString(AVAX_USDT)){
+        let pairToken = getOrCreatePangolinPair(event, null, event.address)
+        
+    }
     sync(event, event.params.reserve0, event.params.reserve1)
 }

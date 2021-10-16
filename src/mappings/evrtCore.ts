@@ -7,7 +7,7 @@ import { LydiaPair } from '../../generated/EVRT/AVAX/LydiaPair'
 import { JoePair } from '../../generated/EVRT/AVAXJLP/JoePair'
 import { PangolinPair } from '../../generated/EVRT/AVAXPGL/PangolinPair'
 
-import { Account, AccountBalance, AccountBalanceSnapshot, Token, Pool, Delegate, Vault, PairToken } from '../../generated/schema'
+import { Account, AccountBalance, AccountBalanceSnapshot, Token, Pool, Delegate, Vault, PairToken, Bundle } from '../../generated/schema'
 
 import { toDecimal, ZERO } from '../helpers/numbers'
 
@@ -16,6 +16,8 @@ export const LYDIA_LP_ADDRESS = '0x3B4656d0e149686faD8D1568898BEed1e2d16998'
 export const LYDIA_LP_ADDRESS1 = '0x26bbBf5104F99Dd1d6e61fF54980E78edcb0ba29'
 export const JOE_LP_ADDRESS = '0xFDA31e6C2Bae47f9e7bd9f42933AcE1D28fF537b'
 export const PGL_ADDRESS = '0x7eCe5fc08050F8007188897C578483Aabd953Bc2'
+export const AVAX_USDT = '0x9ee0a4e21bd333a6bb2ab298194320b8daa26516'
+export const POOL1 = '0xd81bbd31d6da2b0d52f8c02b276940be9423c1d3'
 
 export function getOrCreateToken(event: ethereum.Event, address: Address): Token {
   let addressHex = address.toHexString()
@@ -105,6 +107,16 @@ export function getOrCreateStakingPool(event: ethereum.Event, address: Address):
       return pool as Pool
   }
 
+  // create new bundle if it doesn't exist
+  let bundle = Bundle.load('1')
+  if(bundle == null) {
+    let bundle = new Bundle('1')
+    bundle.AVAX_USDPrice = ZERO.toBigDecimal()
+    bundle.EVRT_AVAXPrice = ZERO.toBigDecimal()
+    bundle.LYD_EVRTPrice = ZERO.toBigDecimal()
+
+    bundle.save()
+  }
   pool = new Pool(addressHex)
   pool.address = address as Bytes
   let tokenInstance = StakingRewards.bind(address)
@@ -118,6 +130,9 @@ export function getOrCreateStakingPool(event: ethereum.Event, address: Address):
   pool.totalRewardAdded = ZERO.toBigDecimal()
   pool.totalStaked = ZERO.toBigDecimal()
   pool.totalWithdrawn = ZERO.toBigDecimal()
+  pool.totalStakedInAVAX = ZERO.toBigDecimal()
+  pool.totalStakedInUSD = ZERO.toBigDecimal()
+  
   pool.save()
   return pool as Pool
 }
@@ -128,13 +143,16 @@ export function getOrCreateLydiaPair(event: ethereum.Event, poolAddress: Address
   if (pairToken != null) {
       return pairToken as PairToken
   }
+  
 
   let pairInstance = LydiaPair.bind(address)
-  let pool = getOrCreateStakingPool(event, poolAddress as Address)
   pairToken = new PairToken(addressHex)
   pairToken.address = address
   pairToken.poolAddress = poolAddress
-  pairToken.pool = pool.id
+  if(poolAddress != null) {
+    let pool = getOrCreateStakingPool(event, poolAddress as Address)
+    pairToken.pool = pool.id
+  }
   let token0 = pairInstance.try_token0()
   pairToken.token0Address = token0.value
   if(!token0.reverted){
@@ -152,6 +170,7 @@ export function getOrCreateLydiaPair(event: ethereum.Event, poolAddress: Address
   }
   pairToken.token1Locked = ZERO.toBigDecimal()
   pairToken.totalLiquidityInAVAX = ZERO.toBigDecimal()
+  pairToken.totalLiquidityInUSD = ZERO.toBigDecimal()
   
   pairToken.save()
   return pairToken as PairToken
@@ -165,11 +184,13 @@ export function getOrCreateJoePair(event: ethereum.Event, poolAddress: Address, 
   }
 
   let pairInstance = JoePair.bind(address)
-  let pool = getOrCreateStakingPool(event, poolAddress as Address)
   pairToken = new PairToken(addressHex)
   pairToken.address = address
   pairToken.poolAddress = poolAddress
-  pairToken.pool = pool.id
+  if(poolAddress != null) {
+    let pool = getOrCreateStakingPool(event, poolAddress as Address)
+    pairToken.pool = pool.id
+  }
   let token0 = pairInstance.try_token0()
   pairToken.token0Address = token0.value
   if(!token0.reverted){
@@ -187,23 +208,35 @@ export function getOrCreateJoePair(event: ethereum.Event, poolAddress: Address, 
   }
   pairToken.token1Locked = ZERO.toBigDecimal()
   pairToken.totalLiquidityInAVAX = ZERO.toBigDecimal()
+  pairToken.totalLiquidityInUSD = ZERO.toBigDecimal()
   
   pairToken.save()
   return pairToken as PairToken
 }
 export function getOrCreatePangolinPair(event: ethereum.Event, poolAddress: Address, address: Address): PairToken {
   let addressHex = address.toHexString()
+  let bundle = Bundle.load('1')
+  if(bundle == null) {
+    let bundle = new Bundle('1')
+    bundle.AVAX_USDPrice = ZERO.toBigDecimal()
+    bundle.EVRT_AVAXPrice = ZERO.toBigDecimal()
+    bundle.LYD_EVRTPrice = ZERO.toBigDecimal()
+
+    bundle.save()
+  }
   let pairToken = PairToken.load(addressHex)
   if (pairToken != null) {
       return pairToken as PairToken
   }
 
   let pairInstance = PangolinPair.bind(address)
-  let pool = getOrCreateStakingPool(event, poolAddress as Address)
   pairToken = new PairToken(addressHex)
   pairToken.address = address
   pairToken.poolAddress = poolAddress
-  pairToken.pool = pool.id
+  if(poolAddress != null) {
+    let pool = getOrCreateStakingPool(event, poolAddress as Address)
+    pairToken.pool = pool.id
+  }
   let token0 = pairInstance.try_token0()
   pairToken.token0Address = token0.value
   if(!token0.reverted){
@@ -221,6 +254,7 @@ export function getOrCreatePangolinPair(event: ethereum.Event, poolAddress: Addr
   }
   pairToken.token1Locked = ZERO.toBigDecimal()
   pairToken.totalLiquidityInAVAX = ZERO.toBigDecimal()
+  pairToken.totalLiquidityInUSD = ZERO.toBigDecimal()
   
   pairToken.save()
   return pairToken as PairToken
@@ -241,48 +275,26 @@ export function sync(event: ethereum.Event, reserve0: BigInt, reserve1: BigInt):
     else pairToken.token1Price = ZERO.toBigDecimal()
     pairToken.token0Locked = _reserve0
     pairToken.token1Locked = _reserve1
-    if(pairToken.id == LYDIA_LP_ADDRESS || pairToken.id == LYDIA_LP_ADDRESS1 || pairToken.id == PGL_ADDRESS) {
-      pairToken.totalLiquidityInAVAX = getEVRTPriceInAVAX().times(_reserve0).plus(_reserve1)
-    } else if(pairToken.id == JOE_LP_ADDRESS) {
-      pairToken.totalLiquidityInAVAX = _reserve1.times(convertJOEToEVRT()).plus(_reserve0).times(getEVRTPriceInAVAX())
+
+    // update price now that reserve could have changed
+    let bundle = Bundle.load('1')
+    if(pairToken.address == Address.fromString(AVAX_USDT)) bundle.AVAX_USDPrice = pairToken.token1Price
+    if(pairToken.address == Address.fromString(LYDIA_LP_ADDRESS1) || pairToken.address == Address.fromString(JOE_LP_ADDRESS) || pairToken.address == Address.fromString(PGL_ADDRESS)) bundle.EVRT_AVAXPrice = pairToken.token1Price
+    if(pairToken.address == Address.fromString(LYDIA_LP_ADDRESS)) bundle.LYD_EVRTPrice = pairToken.token0Price
+    bundle.save()
+
+    if(pairToken.address == Address.fromString(LYDIA_LP_ADDRESS1) || pairToken.address == Address.fromString(JOE_LP_ADDRESS) || pairToken.address == Address.fromString(PGL_ADDRESS)) {
+      pairToken.totalLiquidityInAVAX = bundle.EVRT_AVAXPrice.times(_reserve0).plus(_reserve1)
+    } else if(pairToken.address == Address.fromString(LYDIA_LP_ADDRESS)) {
+      pairToken.totalLiquidityInAVAX = _reserve1.times(bundle.LYD_EVRTPrice as BigDecimal).plus(_reserve0).times(bundle.EVRT_AVAXPrice as BigDecimal)
+    }else if(pairToken.address == Address.fromString(AVAX_USDT)){
+      pairToken.totalLiquidityInAVAX = _reserve0.times(pairToken.token0Price).plus(_reserve1)
     }
+    pairToken.totalLiquidityInUSD = pairToken.totalLiquidityInAVAX.times(bundle.AVAX_USDPrice as BigDecimal)
 
     pairToken.save()
   }
 }
-
-export function getEVRTPriceInAVAX(): BigDecimal {
-  let lydiaPair = PairToken.load(LYDIA_LP_ADDRESS)
-  let lydiaPair1 = PairToken.load(LYDIA_LP_ADDRESS1)
-  let PGLPair = PairToken.load(PGL_ADDRESS)
-  
-
-  if(lydiaPair !== null && lydiaPair1 !== null && PGLPair !== null) {
-    let totalLiquidityEVRT = lydiaPair.token0Locked.plus(lydiaPair1.token0Locked).plus(PGLPair.token0Locked)
-    let wavaxWeight = lydiaPair.token0Locked.div(totalLiquidityEVRT)
-    let wavax1Weight = lydiaPair1.token0Locked.div(totalLiquidityEVRT)
-    let wavax2Weight = PGLPair.token0Locked.div(totalLiquidityEVRT)
-    return lydiaPair.token1Price.times(wavaxWeight).plus(lydiaPair1.token1Price.times(wavax1Weight)).plus(PGLPair.token1Price.times(wavax2Weight))  
-  } else if(lydiaPair !== null && lydiaPair1 !== null) {
-    let totalLiquidityEVRT = lydiaPair.token0Locked.plus(lydiaPair1.token0Locked)
-    let wavaxWeight = lydiaPair.token0Locked.div(totalLiquidityEVRT)
-    let wavax1Weight = lydiaPair1.token0Locked.div(totalLiquidityEVRT)
-    return lydiaPair.token1Price.times(wavaxWeight).plus(lydiaPair1.token1Price.times(wavax1Weight))
-  } else if(lydiaPair !== null) {
-    return lydiaPair.token1Price as BigDecimal
-  } else {
-    return ZERO.toBigDecimal()
-  }
-}
-
-export function convertJOEToEVRT (): BigDecimal {
-  let joePair = PairToken.load(JOE_LP_ADDRESS)
-  if(joePair !== null) {
-    return joePair.token0Price as BigDecimal
-  }
-  return ZERO.toBigDecimal()
-}
-
 
 // pEVRT functions
 
