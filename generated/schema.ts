@@ -1880,55 +1880,179 @@ export class Bundle extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get AVAX_USDPrice(): BigDecimal | null {
+  get AVAX_USDPrice(): BigDecimal {
     let value = this.get("AVAX_USDPrice");
-    if (value === null || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigDecimal();
-    }
+    return value.toBigDecimal();
   }
 
-  set AVAX_USDPrice(value: BigDecimal | null) {
-    if (value === null) {
-      this.unset("AVAX_USDPrice");
-    } else {
-      this.set("AVAX_USDPrice", Value.fromBigDecimal(value as BigDecimal));
-    }
+  set AVAX_USDPrice(value: BigDecimal) {
+    this.set("AVAX_USDPrice", Value.fromBigDecimal(value));
   }
 
-  get EVRT_AVAXPrice(): BigDecimal | null {
+  get EVRT_AVAXPrice(): BigDecimal {
     let value = this.get("EVRT_AVAXPrice");
-    if (value === null || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigDecimal();
-    }
+    return value.toBigDecimal();
   }
 
-  set EVRT_AVAXPrice(value: BigDecimal | null) {
-    if (value === null) {
-      this.unset("EVRT_AVAXPrice");
-    } else {
-      this.set("EVRT_AVAXPrice", Value.fromBigDecimal(value as BigDecimal));
-    }
+  set EVRT_AVAXPrice(value: BigDecimal) {
+    this.set("EVRT_AVAXPrice", Value.fromBigDecimal(value));
   }
 
-  get LYD_EVRTPrice(): BigDecimal | null {
+  get LYD_EVRTPrice(): BigDecimal {
     let value = this.get("LYD_EVRTPrice");
-    if (value === null || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigDecimal();
-    }
+    return value.toBigDecimal();
   }
 
-  set LYD_EVRTPrice(value: BigDecimal | null) {
-    if (value === null) {
-      this.unset("LYD_EVRTPrice");
-    } else {
-      this.set("LYD_EVRTPrice", Value.fromBigDecimal(value as BigDecimal));
-    }
+  set LYD_EVRTPrice(value: BigDecimal) {
+    this.set("LYD_EVRTPrice", Value.fromBigDecimal(value));
+  }
+
+  get EVRT_USDPrice(): BigDecimal {
+    let value = this.get("EVRT_USDPrice");
+    return value.toBigDecimal();
+  }
+
+  set EVRT_USDPrice(value: BigDecimal) {
+    this.set("EVRT_USDPrice", Value.fromBigDecimal(value));
+  }
+
+  get pEVRTTotalValueLockedInUSD(): BigDecimal {
+    let value = this.get("pEVRTTotalValueLockedInUSD");
+    return value.toBigDecimal();
+  }
+
+  set pEVRTTotalValueLockedInUSD(value: BigDecimal) {
+    this.set("pEVRTTotalValueLockedInUSD", Value.fromBigDecimal(value));
+  }
+
+  get poolsTotalValueLockedInUSD(): BigDecimal {
+    let value = this.get("poolsTotalValueLockedInUSD");
+    return value.toBigDecimal();
+  }
+
+  set poolsTotalValueLockedInUSD(value: BigDecimal) {
+    this.set("poolsTotalValueLockedInUSD", Value.fromBigDecimal(value));
+  }
+
+  get totalValueLockedInUSD(): BigDecimal {
+    let value = this.get("totalValueLockedInUSD");
+    return value.toBigDecimal();
+  }
+
+  set totalValueLockedInUSD(value: BigDecimal) {
+    this.set("totalValueLockedInUSD", Value.fromBigDecimal(value));
+  }
+}
+
+export class BundleSnapshot extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save BundleSnapshot entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save BundleSnapshot entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("BundleSnapshot", id.toString(), this);
+  }
+
+  static load(id: string): BundleSnapshot | null {
+    return store.get("BundleSnapshot", id) as BundleSnapshot | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get AVAX_USDPrice(): BigDecimal {
+    let value = this.get("AVAX_USDPrice");
+    return value.toBigDecimal();
+  }
+
+  set AVAX_USDPrice(value: BigDecimal) {
+    this.set("AVAX_USDPrice", Value.fromBigDecimal(value));
+  }
+
+  get EVRT_AVAXPrice(): BigDecimal {
+    let value = this.get("EVRT_AVAXPrice");
+    return value.toBigDecimal();
+  }
+
+  set EVRT_AVAXPrice(value: BigDecimal) {
+    this.set("EVRT_AVAXPrice", Value.fromBigDecimal(value));
+  }
+
+  get LYD_EVRTPrice(): BigDecimal {
+    let value = this.get("LYD_EVRTPrice");
+    return value.toBigDecimal();
+  }
+
+  set LYD_EVRTPrice(value: BigDecimal) {
+    this.set("LYD_EVRTPrice", Value.fromBigDecimal(value));
+  }
+
+  get EVRT_USDPrice(): BigDecimal {
+    let value = this.get("EVRT_USDPrice");
+    return value.toBigDecimal();
+  }
+
+  set EVRT_USDPrice(value: BigDecimal) {
+    this.set("EVRT_USDPrice", Value.fromBigDecimal(value));
+  }
+
+  get pEVRTTotalValueLockedInUSD(): BigDecimal {
+    let value = this.get("pEVRTTotalValueLockedInUSD");
+    return value.toBigDecimal();
+  }
+
+  set pEVRTTotalValueLockedInUSD(value: BigDecimal) {
+    this.set("pEVRTTotalValueLockedInUSD", Value.fromBigDecimal(value));
+  }
+
+  get poolsTotalValueLockedInUSD(): BigDecimal {
+    let value = this.get("poolsTotalValueLockedInUSD");
+    return value.toBigDecimal();
+  }
+
+  set poolsTotalValueLockedInUSD(value: BigDecimal) {
+    this.set("poolsTotalValueLockedInUSD", Value.fromBigDecimal(value));
+  }
+
+  get totalValueLockedInUSD(): BigDecimal {
+    let value = this.get("totalValueLockedInUSD");
+    return value.toBigDecimal();
+  }
+
+  set totalValueLockedInUSD(value: BigDecimal) {
+    this.set("totalValueLockedInUSD", Value.fromBigDecimal(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+
+  get transaction(): Bytes {
+    let value = this.get("transaction");
+    return value.toBytes();
+  }
+
+  set transaction(value: Bytes) {
+    this.set("transaction", Value.fromBytes(value));
   }
 }
 

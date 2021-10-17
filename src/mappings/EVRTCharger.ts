@@ -16,6 +16,8 @@ import {
   TransferEvent,
   ApprovalEvent,
   BurnEvent,
+  Bundle,
+  BundleSnapshot,
   DailyRewardReceived as DailyReward,
   Delegate,
   DelegateVote,
@@ -32,6 +34,7 @@ import {
   getOrCreateToken1,
   increaseAccountBalance,
   saveAccountBalanceSnapshot,
+  getOrCreateBundleSnapshot,
   getOrCreateDelegate,
   GENESIS_ADDRESS
 } from "./EvrtCore"
@@ -166,6 +169,14 @@ export function handleEnter(event: Enter): void {
   let vaultAddress = event.address
   let vault = getOrCreateVault(vaultAddress)
   vault.balance = vault.balance.plus(amount)
+  let bundle = Bundle.load('1')
+  if(bundle !== null) {
+    bundle.pEVRTTotalValueLockedInUSD = vault.balance.times(bundle.EVRT_USDPrice)
+    bundle.totalValueLockedInUSD = bundle.pEVRTTotalValueLockedInUSD.plus(bundle.poolsTotalValueLockedInUSD)
+
+    bundle.save()
+    getOrCreateBundleSnapshot(bundle as Bundle, event.block.timestamp, event.transaction.hash)
+  }
   let account = getOrCreateAccount(event.params.penguin)
   
   let enter = enterEntity.load(id)
@@ -190,6 +201,14 @@ export function handleLeave(event: Leave): void {
   let vaultAddress = event.address
   let vault = getOrCreateVault(vaultAddress)
   vault.balance = vault.balance.minus(amount)
+  let bundle = Bundle.load('1')
+  if(bundle != null) {
+    bundle.pEVRTTotalValueLockedInUSD = vault.balance.times(bundle.EVRT_USDPrice)
+    bundle.totalValueLockedInUSD = bundle.pEVRTTotalValueLockedInUSD.plus(bundle.poolsTotalValueLockedInUSD)
+
+    bundle.save()
+    getOrCreateBundleSnapshot(bundle as Bundle, event.block.timestamp, event.transaction.hash)
+  }
   let shares = toDecimal(event.params.shares, token.decimals)
   let account = getOrCreateAccount(event.transaction.from)
   

@@ -211,13 +211,28 @@ type PairToken @entity {
   totalLiquidityInUSD: BigDecimal!
 }
 
-# stores for USD calculations
 type Bundle @entity {
   id: ID!
-  AVAX_USDPrice: BigDecimal # price of AVAX in usd
-  EVRT_AVAXPrice: BigDecimal # price of EVRT in avax
-  LYD_EVRTPrice: BigDecimal # price of JOE in evrt
+  AVAX_USDPrice: BigDecimal! # price of AVAX in usd
+  EVRT_AVAXPrice: BigDecimal! # price of EVRT in avax
+  LYD_EVRTPrice: BigDecimal! # price of JOE in evrt
+  EVRT_USDPrice: BigDecimal! #price of EVRT in usd
+  pEVRTTotalValueLockedInUSD: BigDecimal! # total staked in evrt charger in usd
+  poolsTotalValueLockedInUSD: BigDecimal!
+  totalValueLockedInUSD: BigDecimal!
+}
 
+type BundleSnapshot @entity {
+  id: ID!
+  AVAX_USDPrice: BigDecimal! # price of AVAX in usd
+  EVRT_AVAXPrice: BigDecimal! # price of EVRT in avax
+  LYD_EVRTPrice: BigDecimal! # price of JOE in evrt
+  EVRT_USDPrice: BigDecimal! #price of EVRT in usd
+  pEVRTTotalValueLockedInUSD: BigDecimal! # total staked in evrt charger in usd
+  poolsTotalValueLockedInUSD: BigDecimal!
+  totalValueLockedInUSD: BigDecimal!
+  timestamp: BigInt!
+  transaction: Bytes!
 }
 
 type AccountLiquidity @entity {

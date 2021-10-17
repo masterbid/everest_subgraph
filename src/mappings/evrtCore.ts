@@ -7,7 +7,7 @@ import { LydiaPair } from '../../generated/EVRT/AVAX/LydiaPair'
 import { JoePair } from '../../generated/EVRT/AVAXJLP/JoePair'
 import { PangolinPair } from '../../generated/EVRT/AVAXPGL/PangolinPair'
 
-import { Account, AccountBalance, AccountBalanceSnapshot, Token, Pool, Delegate, Vault, PairToken, Bundle } from '../../generated/schema'
+import { Account, AccountBalance, AccountBalanceSnapshot, Token, Pool, Delegate, Vault, PairToken, Bundle, BundleSnapshot } from '../../generated/schema'
 
 import { toDecimal, ZERO } from '../helpers/numbers'
 
@@ -114,8 +114,14 @@ export function getOrCreateStakingPool(event: ethereum.Event, address: Address):
     bundle.AVAX_USDPrice = ZERO.toBigDecimal()
     bundle.EVRT_AVAXPrice = ZERO.toBigDecimal()
     bundle.LYD_EVRTPrice = ZERO.toBigDecimal()
+    bundle.EVRT_USDPrice = bundle.EVRT_AVAXPrice.times(bundle.AVAX_USDPrice)
+    bundle.pEVRTTotalValueLockedInUSD = ZERO.toBigDecimal()
+    bundle.poolsTotalValueLockedInUSD = ZERO.toBigDecimal()
+    bundle.totalValueLockedInUSD = bundle.pEVRTTotalValueLockedInUSD.plus(bundle.poolsTotalValueLockedInUSD)
+
 
     bundle.save()
+    getOrCreateBundleSnapshot(bundle, event.block.timestamp, event.transaction.hash)
   }
   pool = new Pool(addressHex)
   pool.address = address as Bytes
@@ -221,8 +227,14 @@ export function getOrCreatePangolinPair(event: ethereum.Event, poolAddress: Addr
     bundle.AVAX_USDPrice = ZERO.toBigDecimal()
     bundle.EVRT_AVAXPrice = ZERO.toBigDecimal()
     bundle.LYD_EVRTPrice = ZERO.toBigDecimal()
+    bundle.EVRT_USDPrice = bundle.EVRT_AVAXPrice.times(bundle.AVAX_USDPrice)
+    bundle.pEVRTTotalValueLockedInUSD = ZERO.toBigDecimal()
+    bundle.poolsTotalValueLockedInUSD = ZERO.toBigDecimal()
+    bundle.totalValueLockedInUSD = bundle.pEVRTTotalValueLockedInUSD.plus(bundle.poolsTotalValueLockedInUSD)
+
 
     bundle.save()
+    getOrCreateBundleSnapshot(bundle, event.block.timestamp, event.transaction.hash)
   }
   let pairToken = PairToken.load(addressHex)
   if (pairToken != null) {
@@ -260,6 +272,48 @@ export function getOrCreatePangolinPair(event: ethereum.Event, poolAddress: Addr
   return pairToken as PairToken
 }
 
+export function getPoolsTVLInUSD(): BigDecimal {
+  let totalPoolTVLInUSD = ZERO.toBigDecimal()
+  let pair1TVL = ZERO.toBigDecimal()
+  let pair2TVL = ZERO.toBigDecimal()
+  let pair3TVL = ZERO.toBigDecimal()
+  let pair4TVL = ZERO.toBigDecimal()
+  let Pair1 = PairToken.load(Address.fromString(LYDIA_LP_ADDRESS).toHexString())
+  let Pair2 = PairToken.load(Address.fromString(LYDIA_LP_ADDRESS1).toHexString())
+  let Pair3 = PairToken.load(Address.fromString(JOE_LP_ADDRESS).toHexString())
+  let Pair4 = PairToken.load(Address.fromString(PGL_ADDRESS).toHexString())
+  if(Pair1 !== null) pair1TVL = Pair1.totalLiquidityInUSD
+  if(Pair2 !== null) pair2TVL = Pair2.totalLiquidityInUSD
+  if(Pair3 !== null) pair3TVL = Pair3.totalLiquidityInUSD
+  if(Pair4 !== null) pair4TVL = Pair4.totalLiquidityInUSD
+  
+  totalPoolTVLInUSD = pair1TVL.plus(pair2TVL).plus(pair3TVL).plus(pair4TVL)
+
+  return totalPoolTVLInUSD as BigDecimal
+}
+
+export function getOrCreateBundleSnapshot(bundle: Bundle, timestamp: BigInt, transaction: Bytes): BundleSnapshot {
+  let id = bundle.id.concat('-').concat(timestamp.toString()).concat(transaction.toHexString())
+  let bundleSnapshot = BundleSnapshot.load(id)
+  if(bundleSnapshot !== null) {
+    return bundleSnapshot as BundleSnapshot
+  }
+  bundleSnapshot = new BundleSnapshot(id)
+  bundleSnapshot.AVAX_USDPrice = bundle.AVAX_USDPrice
+  bundleSnapshot.EVRT_AVAXPrice = bundle.EVRT_AVAXPrice
+  bundleSnapshot.LYD_EVRTPrice = bundle.LYD_EVRTPrice
+  bundleSnapshot.EVRT_USDPrice = bundle.EVRT_USDPrice
+  bundleSnapshot.pEVRTTotalValueLockedInUSD = bundle.pEVRTTotalValueLockedInUSD
+  bundleSnapshot.poolsTotalValueLockedInUSD = bundle.poolsTotalValueLockedInUSD
+  bundleSnapshot.totalValueLockedInUSD = bundle.totalValueLockedInUSD
+  bundleSnapshot.timestamp = timestamp
+  bundleSnapshot.transaction = transaction
+
+  bundleSnapshot.save()
+  
+  return bundleSnapshot as BundleSnapshot
+}
+
 export function sync(event: ethereum.Event, reserve0: BigInt, reserve1: BigInt): void {
   let id = event.address.toHexString()
 
@@ -281,7 +335,13 @@ export function sync(event: ethereum.Event, reserve0: BigInt, reserve1: BigInt):
     if(pairToken.address == Address.fromString(AVAX_USDT)) bundle.AVAX_USDPrice = pairToken.token1Price
     if(pairToken.address == Address.fromString(LYDIA_LP_ADDRESS1) || pairToken.address == Address.fromString(JOE_LP_ADDRESS) || pairToken.address == Address.fromString(PGL_ADDRESS)) bundle.EVRT_AVAXPrice = pairToken.token1Price
     if(pairToken.address == Address.fromString(LYDIA_LP_ADDRESS)) bundle.LYD_EVRTPrice = pairToken.token0Price
+    bundle.poolsTotalValueLockedInUSD = getPoolsTVLInUSD()
+    bundle.EVRT_USDPrice = bundle.EVRT_AVAXPrice.times(bundle.AVAX_USDPrice)
+    bundle.totalValueLockedInUSD = bundle.pEVRTTotalValueLockedInUSD.plus(bundle.poolsTotalValueLockedInUSD)
+
+    
     bundle.save()
+    getOrCreateBundleSnapshot(bundle as Bundle, event.block.timestamp, event.transaction.hash)
 
     if(pairToken.address == Address.fromString(LYDIA_LP_ADDRESS1) || pairToken.address == Address.fromString(JOE_LP_ADDRESS) || pairToken.address == Address.fromString(PGL_ADDRESS)) {
       pairToken.totalLiquidityInAVAX = bundle.EVRT_AVAXPrice.times(_reserve0).plus(_reserve1)

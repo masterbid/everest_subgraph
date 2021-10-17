@@ -48,6 +48,8 @@ dataSources:
         - AccountBalance
         - AccountBalanceSnapshot
         - Token
+        - Bundle
+        - BundleSnapshot
         - TransferEvent
         - MintEvent
         - BurnEvent
@@ -98,6 +100,7 @@ dataSources:
         - AccountBalanceSnapshot
         - Token
         - Bundle
+        - BundleSnapshot
         - Pool
         - Recovered
         - RewardAdded
@@ -147,6 +150,7 @@ dataSources:
         - Token
         - Pool
         - Bundle
+        - BundleSnapshot
         - Recovered
         - RewardAdded
         - RewardPaid
@@ -194,6 +198,7 @@ dataSources:
         - AccountBalanceSnapshot
         - Token
         - Bundle
+        - BundleSnapshot
         - Pool
         - Recovered
         - RewardAdded
@@ -242,6 +247,7 @@ dataSources:
         - AccountBalanceSnapshot
         - Token
         - Bundle
+        - BundleSnapshot
         - Pool
         - Recovered
         - RewardAdded
@@ -287,6 +293,7 @@ dataSources:
         - PairToken
         - Token
         - Bundle
+        - BundleSnapshot
       abis:
         - name: StakingRewards
           file: ./abis/StakingRewards.json
@@ -315,6 +322,7 @@ dataSources:
         - PairToken
         - Token
         - Bundle
+        - BundleSnapshot
       abis:
         - name: StakingRewards
           file: ./abis/StakingRewards.json
@@ -343,6 +351,7 @@ dataSources:
         - PairToken
         - Token
         - Bundle
+        - BundleSnapshot
       abis:
         - name: StakingRewards
           file: ./abis/StakingRewards.json
@@ -371,6 +380,7 @@ dataSources:
         - PairToken
         - Token
         - Bundle
+        - BundleSnapshot
       abis:
         - name: StakingRewards
           file: ./abis/StakingRewards.json
@@ -400,6 +410,7 @@ dataSources:
         - Token
         - Pool
         - Bundle
+        - BundleSnapshot
       abis:
         - name: StakingRewards
           file: ./abis/StakingRewards.json
