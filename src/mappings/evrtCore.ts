@@ -7,7 +7,19 @@ import { LydiaPair } from '../../generated/EVRT/AVAX/LydiaPair'
 import { JoePair } from '../../generated/EVRT/AVAXJLP/JoePair'
 import { PangolinPair } from '../../generated/EVRT/AVAXPGL/PangolinPair'
 
-import { Account, AccountBalance, AccountBalanceSnapshot, Token, Pool, Delegate, Vault, PairToken, Bundle, BundleSnapshot } from '../../generated/schema'
+import {
+    Account,
+    AccountBalance, 
+    AccountBalanceSnapshot, 
+    Token, 
+    Pool, 
+    Delegate, 
+    Vault, 
+    PairToken, 
+    Bundle, 
+    BundleSnapshot,
+    DailyBundle
+} from '../../generated/schema'
 
 import { toDecimal, ZERO } from '../helpers/numbers'
 
@@ -122,6 +134,8 @@ export function getOrCreateStakingPool(event: ethereum.Event, address: Address):
 
     bundle.save()
     getOrCreateBundleSnapshot(bundle, event.block.timestamp, event.transaction.hash)
+    getOrCreateDailyBundle(event, bundle)
+    
   }
   pool = new Pool(addressHex)
   pool.address = address as Bytes
@@ -147,10 +161,11 @@ export function getOrCreateLydiaPair(event: ethereum.Event, poolAddress: Address
   let addressHex = address.toHexString()
   let pairToken = PairToken.load(addressHex)
   if (pairToken != null) {
+      pairToken.timestamp = event.block.timestamp
+      pairToken.save()
       return pairToken as PairToken
   }
   
-
   let pairInstance = LydiaPair.bind(address)
   pairToken = new PairToken(addressHex)
   pairToken.address = address
@@ -177,6 +192,7 @@ export function getOrCreateLydiaPair(event: ethereum.Event, poolAddress: Address
   pairToken.token1Locked = ZERO.toBigDecimal()
   pairToken.totalLiquidityInAVAX = ZERO.toBigDecimal()
   pairToken.totalLiquidityInUSD = ZERO.toBigDecimal()
+  pairToken.timestamp = event.block.timestamp
   
   pairToken.save()
   return pairToken as PairToken
@@ -186,7 +202,8 @@ export function getOrCreateJoePair(event: ethereum.Event, poolAddress: Address, 
   let addressHex = address.toHexString()
   let pairToken = PairToken.load(addressHex)
   if (pairToken != null) {
-      return pairToken as PairToken
+    pairToken.timestamp = event.block.timestamp
+    return pairToken as PairToken
   }
 
   let pairInstance = JoePair.bind(address)
@@ -215,6 +232,7 @@ export function getOrCreateJoePair(event: ethereum.Event, poolAddress: Address, 
   pairToken.token1Locked = ZERO.toBigDecimal()
   pairToken.totalLiquidityInAVAX = ZERO.toBigDecimal()
   pairToken.totalLiquidityInUSD = ZERO.toBigDecimal()
+  pairToken.timestamp = event.block.timestamp
   
   pairToken.save()
   return pairToken as PairToken
@@ -235,10 +253,14 @@ export function getOrCreatePangolinPair(event: ethereum.Event, poolAddress: Addr
 
     bundle.save()
     getOrCreateBundleSnapshot(bundle, event.block.timestamp, event.transaction.hash)
+    getOrCreateDailyBundle(event, bundle)
+    
   }
+
   let pairToken = PairToken.load(addressHex)
   if (pairToken != null) {
-      return pairToken as PairToken
+    pairToken.timestamp = event.block.timestamp
+    return pairToken as PairToken
   }
 
   let pairInstance = PangolinPair.bind(address)
@@ -267,12 +289,20 @@ export function getOrCreatePangolinPair(event: ethereum.Event, poolAddress: Addr
   pairToken.token1Locked = ZERO.toBigDecimal()
   pairToken.totalLiquidityInAVAX = ZERO.toBigDecimal()
   pairToken.totalLiquidityInUSD = ZERO.toBigDecimal()
+  pairToken.timestamp = event.block.timestamp
   
   pairToken.save()
   return pairToken as PairToken
 }
+function toDate(timestamp: BigInt): BigInt {
+  let newTimestamp = timestamp.toI32()
+  let dayID = newTimestamp / 86400
+  let dayStartTimestamp = dayID * 86400
 
-export function getPoolsTVLInUSD(): BigDecimal {
+  return BigInt.fromI32(dayStartTimestamp)
+}
+
+export function getPoolsTVLInUSD(event: ethereum.Event): BigDecimal {
   let totalPoolTVLInUSD = ZERO.toBigDecimal()
   let pair1TVL = ZERO.toBigDecimal()
   let pair2TVL = ZERO.toBigDecimal()
@@ -288,6 +318,16 @@ export function getPoolsTVLInUSD(): BigDecimal {
   if(Pair4 !== null) pair4TVL = Pair4.totalLiquidityInUSD
   
   totalPoolTVLInUSD = pair1TVL.plus(pair2TVL).plus(pair3TVL).plus(pair4TVL)
+  let bundle = Bundle.load('1')
+  let dailyBundle = getOrCreateDailyBundle(event, bundle as Bundle)
+    if(BigInt.fromI32(dailyBundle.date) == toDate(Pair1.timestamp)) dailyBundle.dailyTotalVolumeInPools = dailyBundle.dailyTotalVolumeInPools.plus(pair1TVL.div(bundle.EVRT_USDPrice))
+    if(BigInt.fromI32(dailyBundle.date) == toDate(Pair2.timestamp)) dailyBundle.dailyTotalVolumeInPools = dailyBundle.dailyTotalVolumeInPools.plus(pair2TVL.div(bundle.EVRT_USDPrice))
+    if(BigInt.fromI32(dailyBundle.date) == toDate(Pair3.timestamp)) dailyBundle.dailyTotalVolumeInPools = dailyBundle.dailyTotalVolumeInPools.plus(pair3TVL.div(bundle.EVRT_USDPrice))
+    
+    dailyBundle.dailyTotalVolume = dailyBundle.dailyTotalVolumeInPEVRT.plus(dailyBundle.dailyTotalVolumeInPools)
+    dailyBundle.dailyTotalVolumeInUSD = dailyBundle.dailyTotalVolume.times(bundle.EVRT_USDPrice)
+
+    dailyBundle.save()
 
   return totalPoolTVLInUSD as BigDecimal
 }
@@ -314,6 +354,41 @@ export function getOrCreateBundleSnapshot(bundle: Bundle, timestamp: BigInt, tra
   return bundleSnapshot as BundleSnapshot
 }
 
+export function getOrCreateDailyBundle(event: ethereum.Event, bundle: Bundle): DailyBundle {
+  // Nov 2 2018 is 1541116800 for dayStartTimestamp and 17837 for dayID
+  // Nov 3 2018 would be 1541116800 + 86400 and 17838. And so on, for each exchange
+  let timestamp = event.block.timestamp.toI32()
+  let dayID = timestamp / 86400
+  let dayIDString = dayID.toString()
+  let dayStartTimestamp = dayID * 86400
+  let id = event.address
+    .toHexString()
+    .concat('-')
+    .concat(BigInt.fromI32(dayID).toString())
+
+  let dailyBundle = DailyBundle.load(dayIDString)
+  if(dailyBundle !== null) {
+    dailyBundle.dailyEVRT_USDPrice = bundle.EVRT_USDPrice
+    dailyBundle.totalValueLockedInUSD = bundle.totalValueLockedInUSD
+    dailyBundle.totalValueLocked = bundle.totalValueLockedInUSD.div(bundle.EVRT_USDPrice)
+
+    dailyBundle.save()
+    return dailyBundle as DailyBundle
+  }
+  dailyBundle = new DailyBundle(dayIDString)
+  dailyBundle.date = dayStartTimestamp
+  dailyBundle.dailyEVRT_USDPrice = ZERO.toBigDecimal()
+  dailyBundle.dailyTotalVolumeInPEVRT = ZERO.toBigDecimal()
+  dailyBundle.dailyTotalVolumeInPools = ZERO.toBigDecimal()
+  dailyBundle.dailyTotalVolume = ZERO.toBigDecimal()
+  dailyBundle.dailyTotalVolumeInUSD = ZERO.toBigDecimal()
+  dailyBundle.totalValueLocked = ZERO.toBigDecimal()
+  dailyBundle.totalValueLockedInUSD = ZERO.toBigDecimal()
+
+  dailyBundle.save()
+  return dailyBundle as DailyBundle
+}
+
 export function sync(event: ethereum.Event, reserve0: BigInt, reserve1: BigInt): void {
   let id = event.address.toHexString()
 
@@ -335,30 +410,37 @@ export function sync(event: ethereum.Event, reserve0: BigInt, reserve1: BigInt):
     if(pairToken.address == Address.fromString(AVAX_USDT)) bundle.AVAX_USDPrice = pairToken.token1Price
     if(pairToken.address == Address.fromString(LYDIA_LP_ADDRESS1) || pairToken.address == Address.fromString(JOE_LP_ADDRESS) || pairToken.address == Address.fromString(PGL_ADDRESS)) bundle.EVRT_AVAXPrice = pairToken.token1Price
     if(pairToken.address == Address.fromString(LYDIA_LP_ADDRESS)) bundle.LYD_EVRTPrice = pairToken.token0Price
-    bundle.poolsTotalValueLockedInUSD = getPoolsTVLInUSD()
+    bundle.poolsTotalValueLockedInUSD = getPoolsTVLInUSD(event)
     bundle.EVRT_USDPrice = bundle.EVRT_AVAXPrice.times(bundle.AVAX_USDPrice)
     bundle.totalValueLockedInUSD = bundle.pEVRTTotalValueLockedInUSD.plus(bundle.poolsTotalValueLockedInUSD)
 
     
     bundle.save()
     getOrCreateBundleSnapshot(bundle as Bundle, event.block.timestamp, event.transaction.hash)
-
+    let dailyBundle = getOrCreateDailyBundle(event, bundle as Bundle)
+    
     if(pairToken.address == Address.fromString(LYDIA_LP_ADDRESS1) || pairToken.address == Address.fromString(JOE_LP_ADDRESS) || pairToken.address == Address.fromString(PGL_ADDRESS)) {
       pairToken.totalLiquidityInAVAX = bundle.EVRT_AVAXPrice.times(_reserve0).plus(_reserve1)
+      
     } else if(pairToken.address == Address.fromString(LYDIA_LP_ADDRESS)) {
       pairToken.totalLiquidityInAVAX = _reserve1.times(bundle.LYD_EVRTPrice as BigDecimal).plus(_reserve0).times(bundle.EVRT_AVAXPrice as BigDecimal)
     }else if(pairToken.address == Address.fromString(AVAX_USDT)){
       pairToken.totalLiquidityInAVAX = _reserve0.times(pairToken.token0Price).plus(_reserve1)
     }
     pairToken.totalLiquidityInUSD = pairToken.totalLiquidityInAVAX.times(bundle.AVAX_USDPrice as BigDecimal)
+    
 
     pairToken.save()
+
+    dailyBundle.dailyTotalVolume = dailyBundle.dailyTotalVolumeInPEVRT.plus(dailyBundle.dailyTotalVolumeInPools)
+    dailyBundle.dailyTotalVolumeInUSD = dailyBundle.dailyTotalVolume.times(bundle.EVRT_USDPrice)
+    dailyBundle.save()
   }
 }
 
 // pEVRT functions
 
-export function getOrCreateVault(vaultAddress: Bytes): Vault {
+export function getOrCreateVault(vaultAddress: Bytes, token: Token): Vault {
   let vaultId = vaultAddress.toHexString()
   let vault = Vault.load(vaultId)
 
@@ -368,7 +450,9 @@ export function getOrCreateVault(vaultAddress: Bytes): Vault {
 
   vault = new Vault(vaultId)
   vault.address = vaultAddress
-  vault.balance = ZERO.toBigDecimal()
+  let tokenInstance = EVRTCharger.bind(vaultAddress as Address)
+  let initialBalance = tokenInstance.try_evrtBalance()
+  vault.balance = initialBalance.reverted ? ZERO.toBigDecimal() : toDecimal(initialBalance.value, token.decimals)
   vault.save()
 
   return vault as Vault

@@ -140,15 +140,6 @@ export class Account extends Entity {
     this.set("pEVRTUnstake", Value.fromStringArray(value));
   }
 
-  get pEVRTDailyReward(): Array<string> {
-    let value = this.get("pEVRTDailyReward");
-    return value.toStringArray();
-  }
-
-  set pEVRTDailyReward(value: Array<string>) {
-    this.set("pEVRTDailyReward", Value.fromStringArray(value));
-  }
-
   get poolStake(): Array<string> {
     let value = this.get("poolStake");
     return value.toStringArray();
@@ -1225,15 +1216,6 @@ export class DailyRewardReceived extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get account(): string {
-    let value = this.get("account");
-    return value.toString();
-  }
-
-  set account(value: string) {
-    this.set("account", Value.fromString(value));
-  }
-
   get amount(): BigDecimal {
     let value = this.get("amount");
     return value.toBigDecimal();
@@ -1241,6 +1223,15 @@ export class DailyRewardReceived extends Entity {
 
   set amount(value: BigDecimal) {
     this.set("amount", Value.fromBigDecimal(value));
+  }
+
+  get totalEVRTAmount(): BigDecimal {
+    let value = this.get("totalEVRTAmount");
+    return value.toBigDecimal();
+  }
+
+  set totalEVRTAmount(value: BigDecimal) {
+    this.set("totalEVRTAmount", Value.fromBigDecimal(value));
   }
 
   get timestamp(): BigInt {
@@ -1848,6 +1839,15 @@ export class PairToken extends Entity {
   set totalLiquidityInUSD(value: BigDecimal) {
     this.set("totalLiquidityInUSD", Value.fromBigDecimal(value));
   }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
 }
 
 export class Bundle extends Entity {
@@ -1932,6 +1932,109 @@ export class Bundle extends Entity {
 
   set poolsTotalValueLockedInUSD(value: BigDecimal) {
     this.set("poolsTotalValueLockedInUSD", Value.fromBigDecimal(value));
+  }
+
+  get totalValueLockedInUSD(): BigDecimal {
+    let value = this.get("totalValueLockedInUSD");
+    return value.toBigDecimal();
+  }
+
+  set totalValueLockedInUSD(value: BigDecimal) {
+    this.set("totalValueLockedInUSD", Value.fromBigDecimal(value));
+  }
+}
+
+export class DailyBundle extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save DailyBundle entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save DailyBundle entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("DailyBundle", id.toString(), this);
+  }
+
+  static load(id: string): DailyBundle | null {
+    return store.get("DailyBundle", id) as DailyBundle | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get date(): i32 {
+    let value = this.get("date");
+    return value.toI32();
+  }
+
+  set date(value: i32) {
+    this.set("date", Value.fromI32(value));
+  }
+
+  get dailyEVRT_USDPrice(): BigDecimal {
+    let value = this.get("dailyEVRT_USDPrice");
+    return value.toBigDecimal();
+  }
+
+  set dailyEVRT_USDPrice(value: BigDecimal) {
+    this.set("dailyEVRT_USDPrice", Value.fromBigDecimal(value));
+  }
+
+  get dailyTotalVolumeInPEVRT(): BigDecimal {
+    let value = this.get("dailyTotalVolumeInPEVRT");
+    return value.toBigDecimal();
+  }
+
+  set dailyTotalVolumeInPEVRT(value: BigDecimal) {
+    this.set("dailyTotalVolumeInPEVRT", Value.fromBigDecimal(value));
+  }
+
+  get dailyTotalVolumeInPools(): BigDecimal {
+    let value = this.get("dailyTotalVolumeInPools");
+    return value.toBigDecimal();
+  }
+
+  set dailyTotalVolumeInPools(value: BigDecimal) {
+    this.set("dailyTotalVolumeInPools", Value.fromBigDecimal(value));
+  }
+
+  get dailyTotalVolume(): BigDecimal {
+    let value = this.get("dailyTotalVolume");
+    return value.toBigDecimal();
+  }
+
+  set dailyTotalVolume(value: BigDecimal) {
+    this.set("dailyTotalVolume", Value.fromBigDecimal(value));
+  }
+
+  get dailyTotalVolumeInUSD(): BigDecimal {
+    let value = this.get("dailyTotalVolumeInUSD");
+    return value.toBigDecimal();
+  }
+
+  set dailyTotalVolumeInUSD(value: BigDecimal) {
+    this.set("dailyTotalVolumeInUSD", Value.fromBigDecimal(value));
+  }
+
+  get totalValueLocked(): BigDecimal {
+    let value = this.get("totalValueLocked");
+    return value.toBigDecimal();
+  }
+
+  set totalValueLocked(value: BigDecimal) {
+    this.set("totalValueLocked", Value.fromBigDecimal(value));
   }
 
   get totalValueLockedInUSD(): BigDecimal {

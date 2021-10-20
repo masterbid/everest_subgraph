@@ -11,7 +11,6 @@ type Account @entity {
   burns: [BurnEvent!]! @derivedFrom(field: "sender")
   pEVRTStake: [Enter!]! @derivedFrom(field: "account")
   pEVRTUnstake: [Leave!]! @derivedFrom(field: "account")
-  pEVRTDailyReward: [DailyRewardReceived!]! @derivedFrom(field: "account")
   poolStake: [Staked!]! @derivedFrom(field: "user")
   poolWithdrawal: [Withdrawn!]! @derivedFrom(field: "user")
   poolReward: [RewardPaid!]! @derivedFrom(field: "user")
@@ -139,8 +138,8 @@ type DelegateChange @entity {
 
 type DailyRewardReceived @entity {
   id: ID! #<transaction hash>
-  account: Account! 
   amount: BigDecimal!
+  totalEVRTAmount: BigDecimal!
   timestamp: BigInt!
   transaction: Bytes!
 }
@@ -209,6 +208,7 @@ type PairToken @entity {
   token1Locked: BigDecimal!
   totalLiquidityInAVAX: BigDecimal!
   totalLiquidityInUSD: BigDecimal!
+  timestamp: BigInt
 }
 
 type Bundle @entity {
@@ -220,6 +220,19 @@ type Bundle @entity {
   pEVRTTotalValueLockedInUSD: BigDecimal! # total staked in evrt charger in usd
   poolsTotalValueLockedInUSD: BigDecimal!
   totalValueLockedInUSD: BigDecimal!
+}
+
+# Data accumulated and condensed into day stats for EVRT
+type DailyBundle @entity {
+    id: ID! # timestamp rounded to current day by dividing by 86400 - should only be one per day
+    date: Int!
+    dailyEVRT_USDPrice: BigDecimal
+    dailyTotalVolumeInPEVRT: BigDecimal
+    dailyTotalVolumeInPools: BigDecimal
+    dailyTotalVolume: BigDecimal
+    dailyTotalVolumeInUSD: BigDecimal
+    totalValueLocked: BigDecimal # total value locked in EVRT
+    totalValueLockedInUSD: BigDecimal
 }
 
 type BundleSnapshot @entity {

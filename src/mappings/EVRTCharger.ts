@@ -1,6 +1,5 @@
 import { BigDecimal, Bytes, ethereum } from "@graphprotocol/graph-ts"
 import {
-  EVRTCharger,
   Approval,
   Transfer,
   DailyRewardsReceived,
@@ -17,7 +16,6 @@ import {
   ApprovalEvent,
   BurnEvent,
   Bundle,
-  BundleSnapshot,
   DailyRewardReceived as DailyReward,
   Delegate,
   DelegateVote,
@@ -35,6 +33,7 @@ import {
   increaseAccountBalance,
   saveAccountBalanceSnapshot,
   getOrCreateBundleSnapshot,
+  getOrCreateDailyBundle,
   getOrCreateDelegate,
   GENESIS_ADDRESS
 } from "./EvrtCore"
@@ -167,7 +166,7 @@ export function handleEnter(event: Enter): void {
   let id = event.transaction.hash.toHexString()
   let amount = toDecimal(event.params.amount, token.decimals)
   let vaultAddress = event.address
-  let vault = getOrCreateVault(vaultAddress)
+  let vault = getOrCreateVault(vaultAddress, token)
   vault.balance = vault.balance.plus(amount)
   let bundle = Bundle.load('1')
   if(bundle !== null) {
@@ -176,6 +175,13 @@ export function handleEnter(event: Enter): void {
 
     bundle.save()
     getOrCreateBundleSnapshot(bundle as Bundle, event.block.timestamp, event.transaction.hash)
+    let dailyBundle = getOrCreateDailyBundle(event, bundle as Bundle)
+    dailyBundle.dailyTotalVolumeInPEVRT = dailyBundle.dailyTotalVolumeInPEVRT.plus(amount)
+    dailyBundle.dailyTotalVolume = dailyBundle.dailyTotalVolumeInPEVRT.plus(dailyBundle.dailyTotalVolumeInPools)
+    dailyBundle.dailyTotalVolumeInUSD = dailyBundle.dailyTotalVolume.times(bundle.EVRT_USDPrice)
+
+    dailyBundle.save()
+
   }
   let account = getOrCreateAccount(event.params.penguin)
   
@@ -199,7 +205,7 @@ export function handleLeave(event: Leave): void {
   let id = event.transaction.hash.toHexString()
   let amount = toDecimal(event.params.amount, token.decimals)
   let vaultAddress = event.address
-  let vault = getOrCreateVault(vaultAddress)
+  let vault = getOrCreateVault(vaultAddress, token)
   vault.balance = vault.balance.minus(amount)
   let bundle = Bundle.load('1')
   if(bundle != null) {
@@ -208,6 +214,12 @@ export function handleLeave(event: Leave): void {
 
     bundle.save()
     getOrCreateBundleSnapshot(bundle as Bundle, event.block.timestamp, event.transaction.hash)
+    let dailyBundle = getOrCreateDailyBundle(event, bundle as Bundle)
+    dailyBundle.dailyTotalVolumeInPEVRT = dailyBundle.dailyTotalVolumeInPEVRT.minus(amount)
+    dailyBundle.dailyTotalVolume = dailyBundle.dailyTotalVolumeInPEVRT.plus(dailyBundle.dailyTotalVolumeInPools)
+    dailyBundle.dailyTotalVolumeInUSD = dailyBundle.dailyTotalVolume.times(bundle.EVRT_USDPrice)
+
+    dailyBundle.save()
   }
   let shares = toDecimal(event.params.shares, token.decimals)
   let account = getOrCreateAccount(event.transaction.from)
@@ -230,21 +242,27 @@ export function handleLeave(event: Leave): void {
 
 export function handleDailyRewardsReceived(event: DailyRewardsReceived): void {
   let token = getOrCreateToken(event, event.address)
-  let id = event.transaction.hash.toHexString()
+  let id = event.address.toHexString()
+  let timestamp = event.params.timestamp
   let amount = toDecimal(event.params.amountEvrt, token.decimals)
-  let account = getOrCreateAccount(event.transaction.from)
-  account.save()
 
   let reward = DailyReward.load(id)
   if(reward == null) {
     reward = new DailyReward(id)
-    reward.account = account.id
     reward.amount = amount
-    reward.timestamp = event.block.timestamp
+    reward.totalEVRTAmount = amount
+    reward.timestamp = timestamp
     reward.transaction = event.transaction.hash
 
     reward.save()
+  }else {
+    reward.amount = amount
+    reward.timestamp = timestamp
+    reward.transaction = event.transaction.hash
+    reward.totalEVRTAmount = reward.totalEVRTAmount.plus(amount)
+    reward.save()
   }
+
 }
 
 function handleMintEvent(token: Token | null, amount: BigDecimal, destination: Bytes, event: ethereum.Event): MintEvent {

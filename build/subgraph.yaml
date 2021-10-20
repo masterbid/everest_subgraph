@@ -50,6 +50,7 @@ dataSources:
         - Token
         - Bundle
         - BundleSnapshot
+        - DailyBundle
         - TransferEvent
         - MintEvent
         - BurnEvent
@@ -101,6 +102,7 @@ dataSources:
         - Token
         - Bundle
         - BundleSnapshot
+        - DailyBundle
         - Pool
         - Recovered
         - RewardAdded
@@ -151,6 +153,7 @@ dataSources:
         - Pool
         - Bundle
         - BundleSnapshot
+        - DailyBundle
         - Recovered
         - RewardAdded
         - RewardPaid
@@ -199,6 +202,7 @@ dataSources:
         - Token
         - Bundle
         - BundleSnapshot
+        - DailyBundle
         - Pool
         - Recovered
         - RewardAdded
@@ -248,6 +252,7 @@ dataSources:
         - Token
         - Bundle
         - BundleSnapshot
+        - DailyBundle
         - Pool
         - Recovered
         - RewardAdded
@@ -294,6 +299,7 @@ dataSources:
         - Token
         - Bundle
         - BundleSnapshot
+        - DailyBundle
       abis:
         - name: StakingRewards
           file: LydiaPair1\abis\StakingRewards.json
@@ -323,6 +329,7 @@ dataSources:
         - Token
         - Bundle
         - BundleSnapshot
+        - DailyBundle
       abis:
         - name: StakingRewards
           file: LydiaPair2\abis\StakingRewards.json
@@ -352,6 +359,7 @@ dataSources:
         - Token
         - Bundle
         - BundleSnapshot
+        - DailyBundle
       abis:
         - name: StakingRewards
           file: JoePair\abis\StakingRewards.json
@@ -381,6 +389,7 @@ dataSources:
         - Token
         - Bundle
         - BundleSnapshot
+        - DailyBundle
       abis:
         - name: StakingRewards
           file: PangolinPair1\abis\StakingRewards.json
@@ -411,6 +420,7 @@ dataSources:
         - Pool
         - Bundle
         - BundleSnapshot
+        - DailyBundle
       abis:
         - name: StakingRewards
           file: PangolinPair\abis\StakingRewards.json

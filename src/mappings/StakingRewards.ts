@@ -25,7 +25,6 @@ import {
  } from "../../generated/schema"
 
  import {
-  decreaseAccountBalance,
   getOrCreateAccount,
   getOrCreateStakingPool,
   increaseAccountBalance,
@@ -149,6 +148,7 @@ export function handleStaked(event: Staked): void {
     let token = getOrCreatePoolToken(event, pool.stakeTokenAddress as Address)
     let amount = toDecimal(event.params.amount, token.decimals) 
     pool.totalStaked = pool.totalStaked.plus(amount)
+    
     if(pool.stakeTokenAddress == Address.fromString(LYDIA_LP_ADDRESS) || pool.stakeTokenAddress == Address.fromString(LYDIA_LP_ADDRESS1)) {
         let pairToken = getOrCreateLydiaPair(event, pool.address as Address, pool.stakeTokenAddress as Address)
         pool.pairToken = pairToken.id
