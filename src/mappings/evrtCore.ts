@@ -414,7 +414,7 @@ export function sync(event: ethereum.Event, reserve0: BigInt, reserve1: BigInt):
     if(pairToken.address == Address.fromString(LYDIA_LP_ADDRESS1) || pairToken.address == Address.fromString(JOE_LP_ADDRESS) || pairToken.address == Address.fromString(PGL_ADDRESS)) bundle.EVRT_AVAXPrice = pairToken.token1Price
     if(pairToken.address == Address.fromString(LYDIA_LP_ADDRESS)) bundle.LYD_EVRTPrice = pairToken.token0Price
     bundle.poolsTotalValueLockedInUSD = getPoolsTVLInUSD()
-    bundle.poolsTotalValueLocked= getPoolsTVL()
+    bundle.poolsTotalValueLocked = getPoolsTVL()
     bundle.EVRT_USDPrice = bundle.EVRT_AVAXPrice.times(bundle.AVAX_USDPrice)
     bundle.totalValueLocked = bundle.pEVRTTotalValueLocked.plus(bundle.poolsTotalValueLocked)
     bundle.totalValueLockedInUSD = bundle.pEVRTTotalValueLockedInUSD.plus(bundle.poolsTotalValueLockedInUSD)
@@ -440,7 +440,7 @@ export function sync(event: ethereum.Event, reserve0: BigInt, reserve1: BigInt):
     dailyBundle.dailyEVRT_USDPrice = bundle.EVRT_USDPrice
     dailyBundle.dailyTotalVolumeInPools = getPoolsTVL()
     dailyBundle.dailyTotalVolumeInUSD = dailyBundle.dailyTotalVolumeInUSD.plus(getPoolsTVLInUSD())
-    dailyBundle.dailyTotalVolume = dailyBundle.dailyTotalVolume.plus(dailyBundle.dailyTotalVolumeInPools as BigDecimal)
+    dailyBundle.dailyTotalVolume = dailyBundle.dailyTotalVolumeInPEVRT.plus(dailyBundle.dailyTotalVolumeInPools as BigDecimal)
     dailyBundle.totalValueLockedInUSD = bundle.totalValueLockedInUSD
     dailyBundle.totalValueLocked = bundle.totalValueLocked
     dailyBundle.save()
