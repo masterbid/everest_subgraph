@@ -334,10 +334,32 @@ export function getPoolsTVL(): BigDecimal {
   let Pair2 = PairToken.load(Address.fromString(LYDIA_LP_ADDRESS1).toHexString())
   let Pair3 = PairToken.load(Address.fromString(JOE_LP_ADDRESS).toHexString())
   let Pair4 = PairToken.load(Address.fromString(PGL_ADDRESS).toHexString())
+
   if(Pair1 != null) pair1TVL = Pair1.totalLiquidityVolume as BigDecimal
   if(Pair2 != null) pair2TVL = Pair2.totalLiquidityVolume as BigDecimal
   if(Pair3 != null) pair3TVL = Pair3.totalLiquidityVolume as BigDecimal
   if(Pair4 != null) pair4TVL = Pair4.totalLiquidityVolume as BigDecimal
+  
+  totalPoolTVL = pair1TVL.plus(pair2TVL).plus(pair3TVL).plus(pair4TVL)
+
+  return totalPoolTVL as BigDecimal
+}
+export function getDailyPoolsTVL(event: ethereum.Event): BigDecimal {
+  let totalPoolTVL = ZERO.toBigDecimal()
+  let pair1TVL = ZERO.toBigDecimal()
+  let pair2TVL = ZERO.toBigDecimal()
+  let pair3TVL = ZERO.toBigDecimal()
+  let pair4TVL = ZERO.toBigDecimal()
+  let Pair1 = PairToken.load(Address.fromString(LYDIA_LP_ADDRESS).toHexString())
+  let Pair2 = PairToken.load(Address.fromString(LYDIA_LP_ADDRESS1).toHexString())
+  let Pair3 = PairToken.load(Address.fromString(JOE_LP_ADDRESS).toHexString())
+  let Pair4 = PairToken.load(Address.fromString(PGL_ADDRESS).toHexString())
+
+  let today = event.block.timestamp.toI32() / 86400
+  if(Pair1 != null && Pair1.timestamp.toI32() / 86400 == today) pair1TVL = Pair1.totalLiquidityVolume as BigDecimal
+  if(Pair2 != null && Pair2.timestamp.toI32() / 86400 == today) pair2TVL = Pair2.totalLiquidityVolume as BigDecimal
+  if(Pair3 != null && Pair3.timestamp.toI32() / 86400 == today) pair3TVL = Pair3.totalLiquidityVolume as BigDecimal
+  if(Pair4 != null && Pair4.timestamp.toI32() / 86400 == today) pair4TVL = Pair4.totalLiquidityVolume as BigDecimal
   
   totalPoolTVL = pair1TVL.plus(pair2TVL).plus(pair3TVL).plus(pair4TVL)
 
@@ -438,7 +460,7 @@ export function sync(event: ethereum.Event, reserve0: BigInt, reserve1: BigInt):
     pairToken.save()
 
     dailyBundle.dailyEVRT_USDPrice = bundle.EVRT_USDPrice
-    dailyBundle.dailyTotalVolumeInPools = getPoolsTVL()
+    dailyBundle.dailyTotalVolumeInPools = getDailyPoolsTVL(event)
     dailyBundle.dailyTotalVolumeInUSD = dailyBundle.dailyTotalVolumeInUSD.plus(getPoolsTVLInUSD())
     dailyBundle.dailyTotalVolume = dailyBundle.dailyTotalVolumeInPEVRT.plus(dailyBundle.dailyTotalVolumeInPools as BigDecimal)
     dailyBundle.totalValueLockedInUSD = bundle.totalValueLockedInUSD
