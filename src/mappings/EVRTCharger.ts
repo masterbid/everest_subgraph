@@ -180,7 +180,7 @@ export function handleEnter(event: Enter): void {
     dailyBundle.dailyEVRT_USDPrice = bundle.EVRT_USDPrice
     dailyBundle.dailyTotalVolumeInPEVRT = dailyBundle.dailyTotalVolumeInPEVRT.plus(amount)
     dailyBundle.dailyTotalVolume = dailyBundle.dailyTotalVolumeInPools.plus(dailyBundle.dailyTotalVolumeInPEVRT as BigDecimal)
-    dailyBundle.dailyTotalVolumeInUSD = dailyBundle.dailyTotalVolumeInPEVRT.times(bundle.EVRT_USDPrice)
+    dailyBundle.dailyTotalVolumeInUSD = dailyBundle.dailyTotalVolume.times(bundle.EVRT_USDPrice)
     dailyBundle.totalValueLockedInUSD = bundle.totalValueLockedInUSD
     dailyBundle.totalValueLocked = bundle.totalValueLocked
 
@@ -223,7 +223,7 @@ export function handleLeave(event: Leave): void {
     dailyBundle.dailyEVRT_USDPrice = bundle.EVRT_USDPrice
     dailyBundle.dailyTotalVolumeInPEVRT = dailyBundle.dailyTotalVolumeInPEVRT.minus(amount)
     dailyBundle.dailyTotalVolume = dailyBundle.dailyTotalVolumeInPools.plus(dailyBundle.dailyTotalVolumeInPEVRT as BigDecimal)
-    dailyBundle.dailyTotalVolumeInUSD = dailyBundle.dailyTotalVolumeInPEVRT.times(bundle.EVRT_USDPrice)
+    dailyBundle.dailyTotalVolumeInUSD = dailyBundle.dailyTotalVolume.times(bundle.EVRT_USDPrice)
     dailyBundle.totalValueLockedInUSD = bundle.totalValueLockedInUSD
     dailyBundle.totalValueLocked = bundle.totalValueLocked
 

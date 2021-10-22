@@ -304,25 +304,6 @@ export function getOrCreatePangolinPair(event: ethereum.Event, poolAddress: Addr
   return pairToken as PairToken
 }
 
-export function getPoolsTVLInUSD(): BigDecimal {
-  let totalPoolTVLInUSD = ZERO.toBigDecimal()
-  let pair1TVL = ZERO.toBigDecimal()
-  let pair2TVL = ZERO.toBigDecimal()
-  let pair3TVL = ZERO.toBigDecimal()
-  let pair4TVL = ZERO.toBigDecimal()
-  let Pair1 = PairToken.load(Address.fromString(LYDIA_LP_ADDRESS).toHexString())
-  let Pair2 = PairToken.load(Address.fromString(LYDIA_LP_ADDRESS1).toHexString())
-  let Pair3 = PairToken.load(Address.fromString(JOE_LP_ADDRESS).toHexString())
-  let Pair4 = PairToken.load(Address.fromString(PGL_ADDRESS).toHexString())
-  if(Pair1 != null) pair1TVL = Pair1.totalLiquidityInUSD as BigDecimal
-  if(Pair2 != null) pair2TVL = Pair2.totalLiquidityInUSD as BigDecimal
-  if(Pair3 != null) pair3TVL = Pair3.totalLiquidityInUSD as BigDecimal
-  if(Pair4 != null) pair4TVL = Pair4.totalLiquidityInUSD as BigDecimal
-  
-  totalPoolTVLInUSD = pair1TVL.plus(pair2TVL).plus(pair3TVL).plus(pair4TVL)
-
-  return totalPoolTVLInUSD as BigDecimal
-}
 
 export function getPoolsTVL(): BigDecimal {
   let totalPoolTVL = ZERO.toBigDecimal()
@@ -435,9 +416,9 @@ export function sync(event: ethereum.Event, reserve0: BigInt, reserve1: BigInt):
     if(pairToken.address == Address.fromString(AVAX_USDT)) bundle.AVAX_USDPrice = pairToken.token1Price
     if(pairToken.address == Address.fromString(LYDIA_LP_ADDRESS1) || pairToken.address == Address.fromString(JOE_LP_ADDRESS) || pairToken.address == Address.fromString(PGL_ADDRESS)) bundle.EVRT_AVAXPrice = pairToken.token1Price
     if(pairToken.address == Address.fromString(LYDIA_LP_ADDRESS)) bundle.LYD_EVRTPrice = pairToken.token0Price
-    bundle.poolsTotalValueLockedInUSD = getPoolsTVLInUSD()
-    bundle.poolsTotalValueLocked = getPoolsTVL()
     bundle.EVRT_USDPrice = bundle.EVRT_AVAXPrice.times(bundle.AVAX_USDPrice)
+    bundle.poolsTotalValueLockedInUSD = getPoolsTVL().times(bundle.EVRT_USDPrice)
+    bundle.poolsTotalValueLocked = getPoolsTVL()
     bundle.totalValueLocked = bundle.pEVRTTotalValueLocked.plus(bundle.poolsTotalValueLocked)
     bundle.totalValueLockedInUSD = bundle.pEVRTTotalValueLockedInUSD.plus(bundle.poolsTotalValueLockedInUSD)
 
@@ -461,7 +442,7 @@ export function sync(event: ethereum.Event, reserve0: BigInt, reserve1: BigInt):
 
     dailyBundle.dailyEVRT_USDPrice = bundle.EVRT_USDPrice
     dailyBundle.dailyTotalVolumeInPools = getDailyPoolsTVL(event)
-    dailyBundle.dailyTotalVolumeInUSD = dailyBundle.dailyTotalVolumeInUSD.plus(getPoolsTVLInUSD())
+    dailyBundle.dailyTotalVolumeInUSD = dailyBundle.dailyTotalVolumeInPools.plus(dailyBundle.dailyTotalVolumeInPEVRT as BigDecimal).times(bundle.EVRT_USDPrice)
     dailyBundle.dailyTotalVolume = dailyBundle.dailyTotalVolumeInPEVRT.plus(dailyBundle.dailyTotalVolumeInPools as BigDecimal)
     dailyBundle.totalValueLockedInUSD = bundle.totalValueLockedInUSD
     dailyBundle.totalValueLocked = bundle.totalValueLocked
