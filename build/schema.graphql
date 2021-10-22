@@ -206,6 +206,7 @@ type PairToken @entity {
   token1Price: BigDecimal!
   token0Locked: BigDecimal!
   token1Locked: BigDecimal!
+  totalLiquidityVolume: BigDecimal!
   totalLiquidityInAVAX: BigDecimal!
   totalLiquidityInUSD: BigDecimal!
   timestamp: BigInt
@@ -217,15 +218,18 @@ type Bundle @entity {
   EVRT_AVAXPrice: BigDecimal! # price of EVRT in avax
   LYD_EVRTPrice: BigDecimal! # price of JOE in evrt
   EVRT_USDPrice: BigDecimal! #price of EVRT in usd
+  pEVRTTotalValueLocked: BigDecimal! # total staked in evrt charger in usd
   pEVRTTotalValueLockedInUSD: BigDecimal! # total staked in evrt charger in usd
   poolsTotalValueLockedInUSD: BigDecimal!
+  poolsTotalValueLocked: BigDecimal!
   totalValueLockedInUSD: BigDecimal!
+  totalValueLocked: BigDecimal!
 }
 
 # Data accumulated and condensed into day stats for EVRT
 type DailyBundle @entity {
     id: ID! # timestamp rounded to current day by dividing by 86400 - should only be one per day
-    date: Int!
+    date: Int
     dailyEVRT_USDPrice: BigDecimal
     dailyTotalVolumeInPEVRT: BigDecimal
     dailyTotalVolumeInPools: BigDecimal

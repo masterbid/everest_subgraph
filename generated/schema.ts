@@ -1822,6 +1822,15 @@ export class PairToken extends Entity {
     this.set("token1Locked", Value.fromBigDecimal(value));
   }
 
+  get totalLiquidityVolume(): BigDecimal {
+    let value = this.get("totalLiquidityVolume");
+    return value.toBigDecimal();
+  }
+
+  set totalLiquidityVolume(value: BigDecimal) {
+    this.set("totalLiquidityVolume", Value.fromBigDecimal(value));
+  }
+
   get totalLiquidityInAVAX(): BigDecimal {
     let value = this.get("totalLiquidityInAVAX");
     return value.toBigDecimal();
@@ -1840,13 +1849,21 @@ export class PairToken extends Entity {
     this.set("totalLiquidityInUSD", Value.fromBigDecimal(value));
   }
 
-  get timestamp(): BigInt {
+  get timestamp(): BigInt | null {
     let value = this.get("timestamp");
-    return value.toBigInt();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
   }
 
-  set timestamp(value: BigInt) {
-    this.set("timestamp", Value.fromBigInt(value));
+  set timestamp(value: BigInt | null) {
+    if (value === null) {
+      this.unset("timestamp");
+    } else {
+      this.set("timestamp", Value.fromBigInt(value as BigInt));
+    }
   }
 }
 
@@ -1916,6 +1933,15 @@ export class Bundle extends Entity {
     this.set("EVRT_USDPrice", Value.fromBigDecimal(value));
   }
 
+  get pEVRTTotalValueLocked(): BigDecimal {
+    let value = this.get("pEVRTTotalValueLocked");
+    return value.toBigDecimal();
+  }
+
+  set pEVRTTotalValueLocked(value: BigDecimal) {
+    this.set("pEVRTTotalValueLocked", Value.fromBigDecimal(value));
+  }
+
   get pEVRTTotalValueLockedInUSD(): BigDecimal {
     let value = this.get("pEVRTTotalValueLockedInUSD");
     return value.toBigDecimal();
@@ -1934,6 +1960,15 @@ export class Bundle extends Entity {
     this.set("poolsTotalValueLockedInUSD", Value.fromBigDecimal(value));
   }
 
+  get poolsTotalValueLocked(): BigDecimal {
+    let value = this.get("poolsTotalValueLocked");
+    return value.toBigDecimal();
+  }
+
+  set poolsTotalValueLocked(value: BigDecimal) {
+    this.set("poolsTotalValueLocked", Value.fromBigDecimal(value));
+  }
+
   get totalValueLockedInUSD(): BigDecimal {
     let value = this.get("totalValueLockedInUSD");
     return value.toBigDecimal();
@@ -1941,6 +1976,15 @@ export class Bundle extends Entity {
 
   set totalValueLockedInUSD(value: BigDecimal) {
     this.set("totalValueLockedInUSD", Value.fromBigDecimal(value));
+  }
+
+  get totalValueLocked(): BigDecimal {
+    let value = this.get("totalValueLocked");
+    return value.toBigDecimal();
+  }
+
+  set totalValueLocked(value: BigDecimal) {
+    this.set("totalValueLocked", Value.fromBigDecimal(value));
   }
 }
 
@@ -1983,67 +2027,135 @@ export class DailyBundle extends Entity {
     this.set("date", Value.fromI32(value));
   }
 
-  get dailyEVRT_USDPrice(): BigDecimal {
+  get dailyEVRT_USDPrice(): BigDecimal | null {
     let value = this.get("dailyEVRT_USDPrice");
-    return value.toBigDecimal();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
   }
 
-  set dailyEVRT_USDPrice(value: BigDecimal) {
-    this.set("dailyEVRT_USDPrice", Value.fromBigDecimal(value));
+  set dailyEVRT_USDPrice(value: BigDecimal | null) {
+    if (value === null) {
+      this.unset("dailyEVRT_USDPrice");
+    } else {
+      this.set("dailyEVRT_USDPrice", Value.fromBigDecimal(value as BigDecimal));
+    }
   }
 
-  get dailyTotalVolumeInPEVRT(): BigDecimal {
+  get dailyTotalVolumeInPEVRT(): BigDecimal | null {
     let value = this.get("dailyTotalVolumeInPEVRT");
-    return value.toBigDecimal();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
   }
 
-  set dailyTotalVolumeInPEVRT(value: BigDecimal) {
-    this.set("dailyTotalVolumeInPEVRT", Value.fromBigDecimal(value));
+  set dailyTotalVolumeInPEVRT(value: BigDecimal | null) {
+    if (value === null) {
+      this.unset("dailyTotalVolumeInPEVRT");
+    } else {
+      this.set(
+        "dailyTotalVolumeInPEVRT",
+        Value.fromBigDecimal(value as BigDecimal)
+      );
+    }
   }
 
-  get dailyTotalVolumeInPools(): BigDecimal {
+  get dailyTotalVolumeInPools(): BigDecimal | null {
     let value = this.get("dailyTotalVolumeInPools");
-    return value.toBigDecimal();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
   }
 
-  set dailyTotalVolumeInPools(value: BigDecimal) {
-    this.set("dailyTotalVolumeInPools", Value.fromBigDecimal(value));
+  set dailyTotalVolumeInPools(value: BigDecimal | null) {
+    if (value === null) {
+      this.unset("dailyTotalVolumeInPools");
+    } else {
+      this.set(
+        "dailyTotalVolumeInPools",
+        Value.fromBigDecimal(value as BigDecimal)
+      );
+    }
   }
 
-  get dailyTotalVolume(): BigDecimal {
+  get dailyTotalVolume(): BigDecimal | null {
     let value = this.get("dailyTotalVolume");
-    return value.toBigDecimal();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
   }
 
-  set dailyTotalVolume(value: BigDecimal) {
-    this.set("dailyTotalVolume", Value.fromBigDecimal(value));
+  set dailyTotalVolume(value: BigDecimal | null) {
+    if (value === null) {
+      this.unset("dailyTotalVolume");
+    } else {
+      this.set("dailyTotalVolume", Value.fromBigDecimal(value as BigDecimal));
+    }
   }
 
-  get dailyTotalVolumeInUSD(): BigDecimal {
+  get dailyTotalVolumeInUSD(): BigDecimal | null {
     let value = this.get("dailyTotalVolumeInUSD");
-    return value.toBigDecimal();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
   }
 
-  set dailyTotalVolumeInUSD(value: BigDecimal) {
-    this.set("dailyTotalVolumeInUSD", Value.fromBigDecimal(value));
+  set dailyTotalVolumeInUSD(value: BigDecimal | null) {
+    if (value === null) {
+      this.unset("dailyTotalVolumeInUSD");
+    } else {
+      this.set(
+        "dailyTotalVolumeInUSD",
+        Value.fromBigDecimal(value as BigDecimal)
+      );
+    }
   }
 
-  get totalValueLocked(): BigDecimal {
+  get totalValueLocked(): BigDecimal | null {
     let value = this.get("totalValueLocked");
-    return value.toBigDecimal();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
   }
 
-  set totalValueLocked(value: BigDecimal) {
-    this.set("totalValueLocked", Value.fromBigDecimal(value));
+  set totalValueLocked(value: BigDecimal | null) {
+    if (value === null) {
+      this.unset("totalValueLocked");
+    } else {
+      this.set("totalValueLocked", Value.fromBigDecimal(value as BigDecimal));
+    }
   }
 
-  get totalValueLockedInUSD(): BigDecimal {
+  get totalValueLockedInUSD(): BigDecimal | null {
     let value = this.get("totalValueLockedInUSD");
-    return value.toBigDecimal();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
   }
 
-  set totalValueLockedInUSD(value: BigDecimal) {
-    this.set("totalValueLockedInUSD", Value.fromBigDecimal(value));
+  set totalValueLockedInUSD(value: BigDecimal | null) {
+    if (value === null) {
+      this.unset("totalValueLockedInUSD");
+    } else {
+      this.set(
+        "totalValueLockedInUSD",
+        Value.fromBigDecimal(value as BigDecimal)
+      );
+    }
   }
 }
 

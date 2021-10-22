@@ -170,15 +170,19 @@ export function handleEnter(event: Enter): void {
   vault.balance = vault.balance.plus(amount)
   let bundle = Bundle.load('1')
   if(bundle !== null) {
+    bundle.pEVRTTotalValueLocked = vault.balance
     bundle.pEVRTTotalValueLockedInUSD = vault.balance.times(bundle.EVRT_USDPrice)
     bundle.totalValueLockedInUSD = bundle.pEVRTTotalValueLockedInUSD.plus(bundle.poolsTotalValueLockedInUSD)
 
     bundle.save()
     getOrCreateBundleSnapshot(bundle as Bundle, event.block.timestamp, event.transaction.hash)
     let dailyBundle = getOrCreateDailyBundle(event, bundle as Bundle)
+    dailyBundle.dailyEVRT_USDPrice = bundle.EVRT_USDPrice
     dailyBundle.dailyTotalVolumeInPEVRT = dailyBundle.dailyTotalVolumeInPEVRT.plus(amount)
-    dailyBundle.dailyTotalVolume = dailyBundle.dailyTotalVolumeInPEVRT.plus(dailyBundle.dailyTotalVolumeInPools)
-    dailyBundle.dailyTotalVolumeInUSD = dailyBundle.dailyTotalVolume.times(bundle.EVRT_USDPrice)
+    dailyBundle.dailyTotalVolume = dailyBundle.dailyTotalVolume.plus(dailyBundle.dailyTotalVolumeInPEVRT as BigDecimal)
+    dailyBundle.dailyTotalVolumeInUSD = dailyBundle.dailyTotalVolumeInPEVRT.times(bundle.EVRT_USDPrice)
+    dailyBundle.totalValueLockedInUSD = bundle.totalValueLockedInUSD
+    dailyBundle.totalValueLocked = bundle.totalValueLocked
 
     dailyBundle.save()
 
@@ -209,15 +213,19 @@ export function handleLeave(event: Leave): void {
   vault.balance = vault.balance.minus(amount)
   let bundle = Bundle.load('1')
   if(bundle != null) {
+    bundle.pEVRTTotalValueLocked = vault.balance
     bundle.pEVRTTotalValueLockedInUSD = vault.balance.times(bundle.EVRT_USDPrice)
     bundle.totalValueLockedInUSD = bundle.pEVRTTotalValueLockedInUSD.plus(bundle.poolsTotalValueLockedInUSD)
 
     bundle.save()
     getOrCreateBundleSnapshot(bundle as Bundle, event.block.timestamp, event.transaction.hash)
     let dailyBundle = getOrCreateDailyBundle(event, bundle as Bundle)
+    dailyBundle.dailyEVRT_USDPrice = bundle.EVRT_USDPrice
     dailyBundle.dailyTotalVolumeInPEVRT = dailyBundle.dailyTotalVolumeInPEVRT.minus(amount)
-    dailyBundle.dailyTotalVolume = dailyBundle.dailyTotalVolumeInPEVRT.plus(dailyBundle.dailyTotalVolumeInPools)
-    dailyBundle.dailyTotalVolumeInUSD = dailyBundle.dailyTotalVolume.times(bundle.EVRT_USDPrice)
+    dailyBundle.dailyTotalVolume = dailyBundle.dailyTotalVolume.minus(dailyBundle.dailyTotalVolumeInPEVRT as BigDecimal)
+    dailyBundle.dailyTotalVolumeInUSD = dailyBundle.dailyTotalVolumeInPEVRT.times(bundle.EVRT_USDPrice)
+    dailyBundle.totalValueLockedInUSD = bundle.totalValueLockedInUSD
+    dailyBundle.totalValueLocked = bundle.totalValueLocked
 
     dailyBundle.save()
   }
