@@ -409,7 +409,7 @@ export function sync(event: ethereum.Event, reserve0: BigInt, reserve1: BigInt):
     else pairToken.token1Price = ZERO.toBigDecimal()
     pairToken.token0Locked = _reserve0
     pairToken.token1Locked = _reserve1
-    pairToken.totalLiquidityVolume = _reserve0.plus(_reserve1.times(pairToken.token1Price))
+    pairToken.totalLiquidityVolume = _reserve0.plus(_reserve1.times(pairToken.token0Price))
 
     // update price now that reserve could have changed
     let bundle = Bundle.load('1')
@@ -420,32 +420,26 @@ export function sync(event: ethereum.Event, reserve0: BigInt, reserve1: BigInt):
     bundle.poolsTotalValueLockedInUSD = getPoolsTVL().times(bundle.EVRT_USDPrice)
     bundle.poolsTotalValueLocked = getPoolsTVL()
     bundle.totalValueLocked = bundle.pEVRTTotalValueLocked.plus(bundle.poolsTotalValueLocked)
-    bundle.totalValueLockedInUSD = bundle.pEVRTTotalValueLockedInUSD.plus(bundle.poolsTotalValueLockedInUSD)
+    bundle.totalValueLockedInUSD = bundle.pEVRTTotalValueLocked.times(bundle.EVRT_USDPrice)
 
     
     bundle.save()
     getOrCreateBundleSnapshot(bundle as Bundle, event.block.timestamp, event.transaction.hash)
     let dailyBundle = getOrCreateDailyBundle(event, bundle as Bundle)
-    
-    if(pairToken.address == Address.fromString(LYDIA_LP_ADDRESS1) || pairToken.address == Address.fromString(JOE_LP_ADDRESS) || pairToken.address == Address.fromString(PGL_ADDRESS)) {
-      pairToken.totalLiquidityInAVAX = bundle.EVRT_AVAXPrice.times(_reserve0).plus(_reserve1)
-      
-    } else if(pairToken.address == Address.fromString(LYDIA_LP_ADDRESS)) {
-      pairToken.totalLiquidityInAVAX = _reserve1.times(bundle.LYD_EVRTPrice as BigDecimal).plus(_reserve0).times(bundle.EVRT_AVAXPrice as BigDecimal)
-    }else if(pairToken.address == Address.fromString(AVAX_USDT)){
-      pairToken.totalLiquidityInAVAX = _reserve0.times(pairToken.token0Price).plus(_reserve1)
+    if(pairToken.address == Address.fromString(AVAX_USDT)){
+      pairToken.totalLiquidityInAVAX = pairToken.totalLiquidityVolume
     }
+    pairToken.totalLiquidityInAVAX = bundle.EVRT_AVAXPrice.times(pairToken.totalLiquidityVolume)
     pairToken.totalLiquidityInUSD = pairToken.totalLiquidityInAVAX.times(bundle.AVAX_USDPrice as BigDecimal)
     
-
     pairToken.save()
 
     dailyBundle.dailyEVRT_USDPrice = bundle.EVRT_USDPrice
     dailyBundle.dailyTotalVolumeInPools = getDailyPoolsTVL(event)
     dailyBundle.dailyTotalVolumeInUSD = dailyBundle.dailyTotalVolumeInPools.plus(dailyBundle.dailyTotalVolumeInPEVRT as BigDecimal).times(bundle.EVRT_USDPrice)
     dailyBundle.dailyTotalVolume = dailyBundle.dailyTotalVolumeInPEVRT.plus(dailyBundle.dailyTotalVolumeInPools as BigDecimal)
-    dailyBundle.totalValueLockedInUSD = bundle.totalValueLockedInUSD
     dailyBundle.totalValueLocked = bundle.totalValueLocked
+    dailyBundle.totalValueLockedInUSD = dailyBundle.totalValueLocked.times(bundle.EVRT_USDPrice)
     dailyBundle.save()
   }
 }

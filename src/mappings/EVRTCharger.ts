@@ -1,5 +1,6 @@
 import { BigDecimal, Bytes, ethereum } from "@graphprotocol/graph-ts"
 import {
+  EVRTCharger,
   Approval,
   Transfer,
   DailyRewardsReceived,
@@ -38,7 +39,7 @@ import {
   GENESIS_ADDRESS
 } from "./EvrtCore"
 
-import { toDecimal, ONE } from '../helpers/numbers'
+import { toDecimal, ZERO, ONE } from '../helpers/numbers'
 
 export function handleApproval(event: Approval): void {
   let token = getOrCreateToken1(event, event.address)
@@ -166,8 +167,10 @@ export function handleEnter(event: Enter): void {
   let id = event.transaction.hash.toHexString()
   let amount = toDecimal(event.params.amount, token.decimals)
   let vaultAddress = event.address
+  let contractInstance = EVRTCharger.bind(vaultAddress)
+  let balance = contractInstance.try_evrtBalance()
   let vault = getOrCreateVault(vaultAddress, token)
-  vault.balance = vault.balance.plus(amount)
+  vault.balance = balance.reverted ? ZERO.toBigDecimal() : toDecimal(balance.value, token.decimals)
   let bundle = Bundle.load('1')
   if(bundle !== null) {
     bundle.pEVRTTotalValueLocked = vault.balance
@@ -181,8 +184,8 @@ export function handleEnter(event: Enter): void {
     dailyBundle.dailyTotalVolumeInPEVRT = dailyBundle.dailyTotalVolumeInPEVRT.plus(amount)
     dailyBundle.dailyTotalVolume = dailyBundle.dailyTotalVolumeInPools.plus(dailyBundle.dailyTotalVolumeInPEVRT as BigDecimal)
     dailyBundle.dailyTotalVolumeInUSD = dailyBundle.dailyTotalVolume.times(bundle.EVRT_USDPrice)
-    dailyBundle.totalValueLockedInUSD = bundle.totalValueLockedInUSD
     dailyBundle.totalValueLocked = bundle.totalValueLocked
+    dailyBundle.totalValueLockedInUSD = dailyBundle.totalValueLocked.times(bundle.EVRT_USDPrice)
 
     dailyBundle.save()
 
@@ -209,8 +212,10 @@ export function handleLeave(event: Leave): void {
   let id = event.transaction.hash.toHexString()
   let amount = toDecimal(event.params.amount, token.decimals)
   let vaultAddress = event.address
+  let contractInstance = EVRTCharger.bind(vaultAddress)
+  let balance = contractInstance.try_evrtBalance()
   let vault = getOrCreateVault(vaultAddress, token)
-  vault.balance = vault.balance.minus(amount)
+  vault.balance = balance.reverted ? ZERO.toBigDecimal() : toDecimal(balance.value, token.decimals)
   let bundle = Bundle.load('1')
   if(bundle != null) {
     bundle.pEVRTTotalValueLocked = vault.balance
@@ -224,8 +229,8 @@ export function handleLeave(event: Leave): void {
     dailyBundle.dailyTotalVolumeInPEVRT = dailyBundle.dailyTotalVolumeInPEVRT.minus(amount)
     dailyBundle.dailyTotalVolume = dailyBundle.dailyTotalVolumeInPools.plus(dailyBundle.dailyTotalVolumeInPEVRT as BigDecimal)
     dailyBundle.dailyTotalVolumeInUSD = dailyBundle.dailyTotalVolume.times(bundle.EVRT_USDPrice)
-    dailyBundle.totalValueLockedInUSD = bundle.totalValueLockedInUSD
     dailyBundle.totalValueLocked = bundle.totalValueLocked
+    dailyBundle.totalValueLockedInUSD = dailyBundle.totalValueLocked.times(bundle.EVRT_USDPrice)
 
     dailyBundle.save()
   }
