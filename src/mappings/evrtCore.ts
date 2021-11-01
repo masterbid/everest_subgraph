@@ -23,13 +23,13 @@ import {
 
 import { toDecimal, ZERO } from '../helpers/numbers'
 
-export const GENESIS_ADDRESS = '0x0000000000000000000000000000000000000000'
-export const LYDIA_LP_ADDRESS = '0x3B4656d0e149686faD8D1568898BEed1e2d16998'
-export const LYDIA_LP_ADDRESS1 = '0x26bbBf5104F99Dd1d6e61fF54980E78edcb0ba29'
-export const JOE_LP_ADDRESS = '0xFDA31e6C2Bae47f9e7bd9f42933AcE1D28fF537b'
-export const PGL_ADDRESS = '0x7eCe5fc08050F8007188897C578483Aabd953Bc2'
-export const AVAX_USDT = '0x9ee0a4e21bd333a6bb2ab298194320b8daa26516'
-export const POOL1 = '0xd81bbd31d6da2b0d52f8c02b276940be9423c1d3'
+import {
+  LYDIA_LP_ADDRESS,
+  LYDIA_LP_ADDRESS1,
+  JOE_LP_ADDRESS,
+  PGL_ADDRESS,
+  AVAX_USDT
+} from '../config'
 
 export function getOrCreateToken(event: ethereum.Event, address: Address): Token {
   let addressHex = address.toHexString()
@@ -350,7 +350,7 @@ export function getDailyPoolsTVL(event: ethereum.Event): BigDecimal {
 export function getOrCreateBundleSnapshot(bundle: Bundle, timestamp: BigInt, transaction: Bytes): BundleSnapshot {
   let id = bundle.id.concat('-').concat(timestamp.toString()).concat(transaction.toHexString())
   let bundleSnapshot = BundleSnapshot.load(id)
-  if(bundleSnapshot !== null) {
+  if(bundleSnapshot != null) {
     return bundleSnapshot as BundleSnapshot
   }
   bundleSnapshot = new BundleSnapshot(id)
@@ -377,7 +377,7 @@ export function getOrCreateDailyBundle(event: ethereum.Event, bundle: Bundle): D
   let dayStartTimestamp = dayID * 86400
 
   let dailyBundle = DailyBundle.load(dayID.toString())
-  if(dailyBundle !== null) {
+  if(dailyBundle != null) {
     return dailyBundle as DailyBundle
   }
   dailyBundle = new DailyBundle(dayID.toString())
@@ -403,9 +403,9 @@ export function sync(event: ethereum.Event, reserve0: BigInt, reserve1: BigInt):
     let token1 = getOrCreatePoolToken(event, pairToken.token1Address as Address)
     let _reserve0 = toDecimal(reserve0, token0.decimals)
     let _reserve1 = toDecimal(reserve1, token1.decimals)
-    if (_reserve1 !== ZERO.toBigDecimal()) pairToken.token0Price = _reserve0.div(_reserve1)
+    if (_reserve1 != ZERO.toBigDecimal()) pairToken.token0Price = _reserve0.div(_reserve1)
     else pairToken.token0Price = ZERO.toBigDecimal()
-    if (_reserve0 !== ZERO.toBigDecimal()) pairToken.token1Price = _reserve1.div(_reserve0)
+    if (_reserve0 != ZERO.toBigDecimal()) pairToken.token1Price = _reserve1.div(_reserve0)
     else pairToken.token1Price = ZERO.toBigDecimal()
     pairToken.token0Locked = _reserve0
     pairToken.token1Locked = _reserve1

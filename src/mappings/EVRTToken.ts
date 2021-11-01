@@ -18,9 +18,10 @@ import {
   getOrCreateAccount,
   getOrCreateToken,
   increaseAccountBalance,
-  saveAccountBalanceSnapshot,
-  GENESIS_ADDRESS
+  saveAccountBalanceSnapshot
 } from "./evrtCore"
+
+import { GENESIS_ADDRESS } from '../config'
 
 import { toDecimal, ONE } from '../helpers/numbers'
 

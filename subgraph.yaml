@@ -30,7 +30,7 @@ dataSources:
           handler: handleApproval
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
-      file: ./src/mappings/EVRTToken.ts
+      file: ./src/mappings/evrtToken.ts
   - kind: ethereum/contract
     name: EVRTCharger
     network: avalanche
@@ -81,7 +81,7 @@ dataSources:
           handler: handleEnter
         - event: Leave(indexed address,uint256,uint256)
           handler: handleLeave
-      file: ./src/mappings/EVRTCharger.ts
+      file: ./src/mappings/evrtCharger.ts
   - kind: ethereum/contract
     name: EVRT/AVAX
     network: avalanche
@@ -132,7 +132,7 @@ dataSources:
           handler: handleStaked
         - event: Withdrawn(indexed address,uint256)
           handler: handleWithdrawn
-      file: ./src/mappings/StakingRewards.ts
+      file: ./src/mappings/stakingRewards.ts
   - kind: ethereum/contract
     name: LYD/AVAX
     network: avalanche
@@ -182,7 +182,7 @@ dataSources:
           handler: handleStaked
         - event: Withdrawn(indexed address,uint256)
           handler: handleWithdrawn
-      file: ./src/mappings/StakingRewards.ts
+      file: ./src/mappings/stakingRewards.ts
   - kind: ethereum/contract
     name: EVRT/AVAXJLP
     network: avalanche
@@ -232,7 +232,7 @@ dataSources:
           handler: handleStaked
         - event: Withdrawn(indexed address,uint256)
           handler: handleWithdrawn
-      file: ./src/mappings/StakingRewards.ts
+      file: ./src/mappings/stakingRewards.ts
   - kind: ethereum/contract
     name: EVRT/AVAXPGL
     network: avalanche
@@ -282,7 +282,7 @@ dataSources:
           handler: handleStaked
         - event: Withdrawn(indexed address,uint256)
           handler: handleWithdrawn
-      file: ./src/mappings/StakingRewards.ts
+      file: ./src/mappings/stakingRewards.ts
   - kind: ethereum/contract
     name: LydiaPair1
     network: avalanche
@@ -312,7 +312,7 @@ dataSources:
       eventHandlers:
         - event: Sync(uint112,uint112)
           handler: handleLydiaSync
-      file: ./src/mappings/StakingRewards.ts
+      file: ./src/mappings/stakingRewards.ts
   - kind: ethereum/contract
     name: LydiaPair2
     network: avalanche
@@ -342,7 +342,7 @@ dataSources:
       eventHandlers:
         - event: Sync(uint112,uint112)
           handler: handleLydiaSync
-      file: ./src/mappings/StakingRewards.ts
+      file: ./src/mappings/stakingRewards.ts
   - kind: ethereum/contract
     name: JoePair
     network: avalanche
@@ -372,7 +372,7 @@ dataSources:
       eventHandlers:
         - event: Sync(uint112,uint112)
           handler: handleJoeSync
-      file: ./src/mappings/StakingRewards.ts
+      file: ./src/mappings/stakingRewards.ts
   - kind: ethereum/contract
     name: PangolinPair1
     network: avalanche
@@ -402,7 +402,7 @@ dataSources:
       eventHandlers:
         - event: Sync(uint112,uint112)
           handler: handlePGLSync
-      file: ./src/mappings/StakingRewards.ts
+      file: ./src/mappings/stakingRewards.ts
   - kind: ethereum/contract
     name: PangolinPair
     network: avalanche
@@ -433,4 +433,4 @@ dataSources:
       eventHandlers:
         - event: Sync(uint112,uint112)
           handler: handlePGLSync
-      file: ./src/mappings/StakingRewards.ts
+      file: ./src/mappings/stakingRewards.ts

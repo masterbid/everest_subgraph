@@ -1,6 +1,5 @@
-import { Address, BigInt, BigDecimal, Bytes, ethereum } from "@graphprotocol/graph-ts"
+import { Address, BigInt } from "@graphprotocol/graph-ts"
 import {
-  StakingRewards,
   Recovered,
   RewardAdded,
   RewardPaid,
@@ -20,8 +19,7 @@ import {
   Staked as StakedEntity,
   Withdrawn as WithdrawnEntity,
   Pool,
-  AccountLiquidity,
-  PairToken
+  AccountLiquidity
  } from "../../generated/schema"
 
  import {
@@ -32,15 +30,18 @@ import {
   getOrCreateLydiaPair,
   getOrCreateJoePair,
   getOrCreatePangolinPair,
-  LYDIA_LP_ADDRESS,
-  LYDIA_LP_ADDRESS1,
-  JOE_LP_ADDRESS,
-  PGL_ADDRESS,
-  AVAX_USDT,
   sync
 } from "./evrtCore"
 
-import { toDecimal, ONE } from '../helpers/numbers'
+import {
+    LYDIA_LP_ADDRESS,
+    LYDIA_LP_ADDRESS1,
+    JOE_LP_ADDRESS,
+    PGL_ADDRESS,
+    AVAX_USDT
+} from '../config'
+
+import { toDecimal } from '../helpers/numbers'
 
 function getOrCreateLiquidity(pool: Pool, accountAddress: Address): AccountLiquidity {
     let id = pool.id.concat("-").concat(accountAddress.toHexString())
@@ -238,8 +239,7 @@ export function handleJoeSync(event: JoeSync): void {
 export function handlePGLSync(event: PGLSync): void {
     let id = event.address.toHexString()
     if(event.address == Address.fromString(AVAX_USDT)){
-        let pairToken = getOrCreatePangolinPair(event, null, event.address)
-        
+        getOrCreatePangolinPair(event, null, event.address)
     }
     sync(event, event.params.reserve0, event.params.reserve1)
 }

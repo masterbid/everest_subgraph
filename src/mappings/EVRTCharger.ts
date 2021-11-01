@@ -35,9 +35,10 @@ import {
   saveAccountBalanceSnapshot,
   getOrCreateBundleSnapshot,
   getOrCreateDailyBundle,
-  getOrCreateDelegate,
-  GENESIS_ADDRESS
-} from "./EvrtCore"
+  getOrCreateDelegate
+} from "./evrtCore"
+
+import { GENESIS_ADDRESS } from '../config'
 
 import { toDecimal, ZERO, ONE } from '../helpers/numbers'
 
@@ -172,7 +173,7 @@ export function handleEnter(event: Enter): void {
   let vault = getOrCreateVault(vaultAddress, token)
   vault.balance = balance.reverted ? ZERO.toBigDecimal() : toDecimal(balance.value, token.decimals)
   let bundle = Bundle.load('1')
-  if(bundle !== null) {
+  if(bundle != null) {
     bundle.pEVRTTotalValueLocked = vault.balance
     bundle.pEVRTTotalValueLockedInUSD = vault.balance.times(bundle.EVRT_USDPrice)
     bundle.totalValueLockedInUSD = bundle.pEVRTTotalValueLockedInUSD.plus(bundle.poolsTotalValueLockedInUSD)
